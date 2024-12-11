@@ -11,8 +11,8 @@ class CategoriaRoutes {
 
   initializeRoutes() {
 
-    // Retornar todas as categorias já cadastradas
     this.router.get("/categorias", this.controller.findAll);
+    this.router.post("/categorias", this.controller.create);
 
   }
 }
