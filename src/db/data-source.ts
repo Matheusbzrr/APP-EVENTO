@@ -9,7 +9,6 @@ import { Participant } from "../models/participant";
 import { Post } from "../models/post";
 import { Speaker } from "../models/speaker";
 
-
 export const AppDataSource = new DataSource({
     type: config.dialect as "mysql" | "postgres" | "sqlite" | "mssql" | "oracle",
     host: config.HOST!,
@@ -26,7 +25,6 @@ export const AppDataSource = new DataSource({
         Post,
         Speaker
     ],
-
-    synchronize: false, 
+    synchronize: true,
     logging: false,
 });

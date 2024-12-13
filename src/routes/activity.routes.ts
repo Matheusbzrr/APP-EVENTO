@@ -47,7 +47,7 @@ class ActivityRoutes {
      *                 description: Hora da atividade
      *               date:
      *                 type: string
-     *                 format: date 
+     *                 format: date
      *                 description: Data da atividade
      *               location:
      *                 type: string

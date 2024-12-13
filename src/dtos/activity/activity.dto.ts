@@ -7,6 +7,7 @@ export interface ActivityDTO {
     description: string;
     time: string;
     date: Date;
+
     location: string;
     checkins?: CheckinDTO[];
     speaker?: SpeakerDTO[];
