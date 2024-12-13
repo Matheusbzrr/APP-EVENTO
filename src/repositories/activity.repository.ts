@@ -3,6 +3,8 @@ import { ActivityDTO } from "../dtos/activity/activity.dto";
 import { CreateActivityDTO } from "../dtos/activity/createActivity.dto";
 import { Activity } from "../models/activity";
 import { Speaker } from "../models/speaker";
+import { CheckinDTO } from "../dtos/checkin/checkin.dto";
+import { convertTimeToCorrectFormat } from "../utils/time-utils";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -26,10 +28,16 @@ class ActivityRepository {
                 location: activity.location ?? "Sem local",
                 checkins: activity.checkins.map(checkin => ({
                     idCheckin: checkin.idCheckin,
-                    idParticipant: checkin.participant?.idParticipant ?? null,
+                    participant: checkin.participant ? {
+                        idParticipant: checkin.participant.idParticipant,
+                        name: checkin.participant.name ?? "Sem nome",
+                        email: checkin.participant.email ?? "Sem e-mail",
+                        companyName: checkin.participant.companyName ?? "Sem empresa",
+                        postPermission: checkin.participant.postPermission ?? 0,
+                    } : null,
                     idActivity: checkin.activity?.idActivity ?? 0,
                     checkinDateTime: checkin.checkinDateTime,
-                })),
+                })) as CheckinDTO[],
                 speaker: activity.speaker?.map(speaker => ({
                     idSpeaker: speaker.idSpeaker,
                     name: speaker.name ?? "Sem nome",
@@ -43,7 +51,11 @@ class ActivityRepository {
 
     async create(activityData: CreateActivityDTO): Promise<ActivityDTO> {
         try {
-            const activity = this.activityRepository.create(activityData);
+            const formattedTime = convertTimeToCorrectFormat(activityData.time);
+            const activity = this.activityRepository.create({ 
+                ...activityData, 
+                time: formattedTime 
+            });
 
             if (activityData.speakerId) {
                 const speakers = await this.speakerRepository.findByIds(activityData.speakerId);

@@ -4,7 +4,6 @@ import { CreateSpeakerDTO } from "../dtos/speaker/createSpeaker.dto";
 
 class SpeakerController {
     constructor() {
-        // Aqui você pode adicionar qualquer inicialização, se necessário
     }
 
     async findAll(req: Request, res: Response): Promise<void> {

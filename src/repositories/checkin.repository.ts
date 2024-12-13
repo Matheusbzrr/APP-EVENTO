@@ -2,6 +2,7 @@ import { AppDataSource } from "../db/data-source";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
 import { CreateCheckinDTO } from "../dtos/checkin/CreateCheckinDTO";
 import { Checkin } from "../models/checkin";
+import { Participant } from "../models/participant"; 
 
 class CheckinRepository {
     checkinRepository = AppDataSource.getRepository(Checkin);
@@ -14,10 +15,16 @@ class CheckinRepository {
 
             return checkins.map(checkin => ({
                 idCheckin: checkin.idCheckin,
-                idParticipant: checkin.participant?.idParticipant,
-                idActivity: checkin.activity?.idActivity,
+                participant: checkin.participant ? {
+                    idParticipant: checkin.participant.idParticipant,
+                    name: checkin.participant.name ?? "Sem nome",
+                    email: checkin.participant.email ?? "Sem e-mail",
+                    companyName: checkin.participant.companyName ?? "Sem empresa",
+                    postPermission: checkin.participant.postPermission ?? 0,
+                } : null,  
+                idActivity: checkin.activity?.idActivity ?? 0,
                 checkinDateTime: checkin.checkinDateTime,
-            }));
+            })) as CheckinDTO[]; 
         } catch (error) {
             console.error("Erro ao buscar todos os checkins:", error);
             throw new Error("Falha ao retornar os Checkins!");
@@ -26,8 +33,17 @@ class CheckinRepository {
 
     async create(checkinData: CreateCheckinDTO): Promise<CheckinDTO> {
         try {
+            
+            const participant = await AppDataSource.getRepository(Participant).findOne({
+                where: { idParticipant: checkinData.idParticipant },
+            });
+
+            if (!participant) {
+                throw new Error("Participante não encontrado");
+            }
+
             const checkin = this.checkinRepository.create({
-                participant: { idParticipant: checkinData.idParticipant },
+                participant: participant, 
                 activity: { idActivity: checkinData.idActivity },
             });
 
@@ -35,8 +51,14 @@ class CheckinRepository {
 
             return {
                 idCheckin: savedCheckin.idCheckin,
-                idParticipant: savedCheckin.participant?.idParticipant,
-                idActivity: savedCheckin.activity?.idActivity,
+                participant: savedCheckin.participant ? {
+                    idParticipant: savedCheckin.participant.idParticipant,
+                    name: savedCheckin.participant.name ?? "Sem nome",
+                    email: savedCheckin.participant.email ?? "Sem e-mail",
+                    companyName: savedCheckin.participant.companyName ?? "Sem empresa",
+                    postPermission: savedCheckin.participant.postPermission ?? 0,
+                } : null,  
+                idActivity: savedCheckin.activity?.idActivity ?? 0,
                 checkinDateTime: savedCheckin.checkinDateTime,
             };
         } catch (error) {
