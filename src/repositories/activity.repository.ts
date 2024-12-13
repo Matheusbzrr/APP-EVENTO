@@ -14,32 +14,39 @@ class ActivityRepository {
             const activities = await this.activityRepository.find({
                 relations: ["checkins", "speaker"],
             });
-
-            return activities.map(activity => ({
-                idActivity: activity.idActivity,
-                title: activity.title,
-                description: activity.description,
-                time: activity.time,
-                location: activity.location,
-                checkins: activity.checkins.map(checkin => ({
-                    idCheckin: checkin.idCheckin,
-                    participantId: checkin.participant.idParticipant,
-                    activity: checkin.activity.idActivity,
-                    checkinDateTime: checkin.checkinDateTime,
-                })),
-                speaker: activity.speaker
-                    ? activity.speaker.map(speaker => ({
-                          idSpeaker: speaker.idSpeaker,
-                          name: speaker.name,
-                      }))
-                    : [],
-            }));
+    
+            return activities
+                .filter(activity => !!activity) 
+                .map(activity => ({
+                    idActivity: activity.idActivity ?? 0, 
+                    title: activity.title ?? "Sem título",
+                    description: activity.description ?? "Sem descrição",
+                    time: activity.time ?? "00:00",
+                    location: activity.location ?? "Sem local",
+                    checkins: activity.checkins
+                        ? activity.checkins
+                              .filter(checkin => !!checkin) 
+                              .map(checkin => ({
+                                  idCheckin: checkin.idCheckin ?? 0,
+                                  participantId: checkin.participant?.idParticipant ?? null,
+                                  activity: checkin.activity?.idActivity ?? 0,
+                                  checkinDateTime: checkin.checkinDateTime ?? new Date(),
+                              }))
+                        : [],
+                    speaker: activity.speaker
+                        ? activity.speaker
+                              .filter(speaker => !!speaker) 
+                              .map(speaker => ({
+                                  idSpeaker: speaker.idSpeaker ?? 0,
+                                  name: speaker.name ?? "Sem nome",
+                              }))
+                        : [],
+                }));
         } catch (error) {
             console.error("Erro ao buscar todas as atividades:", error);
             throw new Error("Falha ao retornar as Atividades!");
         }
     }
-
     async create(activityData: CreateActivityDTO): Promise<ActivityDTO> {
         try {
             const activity = this.activityRepository.create(activityData);
@@ -65,7 +72,7 @@ class ActivityRepository {
                     idSpeaker: speaker.idSpeaker,
                     name: speaker.name,
                 })),
-                checkins: [], // Assumindo que nenhuma checagem está inclusa na criação
+                checkins: [], 
             };
         } catch (error) {
             console.error("Erro ao criar atividade:", error);
