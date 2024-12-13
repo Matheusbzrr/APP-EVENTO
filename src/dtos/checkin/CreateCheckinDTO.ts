@@ -1,4 +1,6 @@
+
+
 export interface CreateCheckinDTO {
-    participantId: number;
-    activityId: number;
+    idParticipant: number;
+    idActivity: number;
 }

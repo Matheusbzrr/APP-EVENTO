@@ -35,9 +35,9 @@ class CheckinRoutes {
          *           schema:
          *             type: object
          *             properties:
-         *               participantId:
+         *               idParticipant:
          *                 type: number
-         *               activityId:
+         *               idActivity:
          *                 type: number
          *     responses:
          *       201:
