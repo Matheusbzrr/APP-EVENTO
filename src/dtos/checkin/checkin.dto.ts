@@ -1,6 +1,7 @@
+
 export interface CheckinDTO {
     idCheckin: number;
-    participantId: number;
-    activityId: number;
+    participantId: number; 
+    activity: number;
     checkinDateTime: Date;
 }

@@ -11,8 +11,8 @@ class CheckinRepository {
             const checkins = await this.checkinRepository.find({ relations: ["participant", "activity"] });
             return checkins.map(checkin => ({
                 idCheckin: checkin.idCheckin,
-                participantId: checkin.participant.idParticipant,
-                activityId: checkin.activity.idActivity,
+                participantId: checkin.participant.idParticipant, 
+                activity:checkin.activity.idActivity,
                 checkinDateTime: checkin.checkinDateTime,
             }));
         } catch (error) {
@@ -30,8 +30,8 @@ class CheckinRepository {
             const savedCheckin = await this.checkinRepository.save(checkin);
             return {
                 idCheckin: savedCheckin.idCheckin,
-                participantId: savedCheckin.participant.idParticipant,
-                activityId: savedCheckin.activity.idActivity,
+                participantId: savedCheckin.participant.idParticipant, // Retorna o ID do participante
+                activity: savedCheckin.activity.idActivity,
                 checkinDateTime: savedCheckin.checkinDateTime,
             };
         } catch (error) {
