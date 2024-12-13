@@ -43,8 +43,12 @@ class ActivityRoutes {
      *                 description: Descrição da atividade
      *               time:
      *                 type: string
-     *                 format: date-time
-     *                 description: Data e hora da atividade
+     *                 pattern: "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
+     *                 description: Hora da atividade
+     *               date:
+     *                 type: string
+     *                 format: date
+     *                 description: Data da atividade
      *               location:
      *                 type: string
      *                 description: Localização da atividade

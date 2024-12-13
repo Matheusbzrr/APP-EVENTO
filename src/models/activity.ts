@@ -15,6 +15,9 @@ export class Activity {
     @Column({ type: 'time' })
     time!: string;
 
+    @Column({ type: 'date' })
+    date!: Date;
+
     @Column({ length: 200 })
     location!: string;
 

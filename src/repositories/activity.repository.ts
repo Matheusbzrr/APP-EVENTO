@@ -4,7 +4,6 @@ import { CreateActivityDTO } from "../dtos/activity/createActivity.dto";
 import { Activity } from "../models/activity";
 import { Speaker } from "../models/speaker";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
-import { convertTimeToCorrectFormat } from "../utils/time-utils";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -25,6 +24,7 @@ class ActivityRepository {
                 title: activity.title ?? "Sem título",
                 description: activity.description ?? "Sem descrição",
                 time: activity.time ?? "00:00",
+                date: activity.date ?? new Date("2000-01-01"),
                 location: activity.location ?? "Sem local",
                 checkins: activity.checkins.map(checkin => ({
                     idCheckin: checkin.idCheckin,
@@ -51,7 +51,7 @@ class ActivityRepository {
 
     async create(activityData: CreateActivityDTO): Promise<ActivityDTO> {
         try {
-            const formattedTime = convertTimeToCorrectFormat(activityData.time);
+            const formattedTime = activityData.time;
             const activity = this.activityRepository.create({ 
                 ...activityData, 
                 time: formattedTime 
@@ -69,6 +69,7 @@ class ActivityRepository {
                 title: savedActivity.title,
                 description: savedActivity.description,
                 time: savedActivity.time,
+                date: savedActivity.date,
                 location: savedActivity.location,
                 speaker: savedActivity.speaker?.map(speaker => ({
                     idSpeaker: speaker.idSpeaker,
