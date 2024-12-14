@@ -11,7 +11,7 @@ class AuthRoutes {
   initializeRoutes() {
     /**
      * @openapi
-     * /appevento/auth/login:
+     * /auth/login:
      *   post:
      *     tags:
      *       - Authentication

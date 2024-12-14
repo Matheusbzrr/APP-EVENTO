@@ -3,6 +3,28 @@ import participantService from "../../domain/services/participant.service";
 import { CreateParticipantDTO } from "../../domain/dtos/participant/CreateParticipantDTO";
 
 class ParticipantController {
+    async findByEmail(req: Request, res: Response): Promise<void> {
+        const { email } = req.params;
+    
+        if (!email) {
+            res.status(400).send({ message: "E-mail é obrigatório" });
+            return;
+        }
+    
+        try {
+            const participant = await participantService.getParticipantByEmail(email);
+    
+            if (!participant) {
+                res.status(404).send({ message: "Participante não encontrado" });
+                return;
+            }
+    
+            res.json(participant);
+        } catch (err) {
+            console.error("Erro ao buscar participante por e-mail:", err);
+            res.status(500).send({ message: "Erro ao buscar participante por e-mail" });
+        }
+    }
     async findAll(req: Request, res: Response): Promise<void> {
         try {
             const participants = await participantService.getAllParticipants(); 

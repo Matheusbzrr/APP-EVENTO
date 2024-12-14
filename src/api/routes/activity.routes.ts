@@ -12,26 +12,51 @@ class ActivityRoutes {
     initializeRoutes() {
         /**
          * @openapi
-         * /appevento/activities:
+         * /activities:
          *   get:
          *     tags:
          *       - Activities
-         *     description: Retorna todas as atividades cadastradas.
+         *     summary: Obter todas as atividades
+         *     description: Retorna a lista de todas as atividades cadastradas no sistema.
          *     responses:
          *       200:
-         *         description: Lista de atividades
+         *         description: Lista de atividades cadastradas com sucesso.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: array
+         *               items:
+         *                 type: object
+         *                 properties:
+         *                   id:
+         *                     type: number
+         *                   title:
+         *                     type: string
+         *                   description:
+         *                     type: string
+         *                   time:
+         *                     type: string
+         *                   date:
+         *                     type: string
+         *                   location:
+         *                     type: string
+         *                   speakerId:
+         *                     type: array
+         *                     items:
+         *                       type: number
          *       500:
-         *         description: Erro ao tentar listar as atividades
+         *         description: Erro ao tentar listar as atividades.
          */
         this.router.get("/activities", ActivityController.findAll);
 
         /**
          * @openapi
-         * /appevento/activities:
+         * /activities:
          *   post:
          *     tags:
          *       - Activities
-         *     description: Cria uma nova atividade.
+         *     summary: Criar uma nova atividade
+         *     description: Endpoint para criar uma nova atividade com base nos dados fornecidos.
          *     requestBody:
          *       required: true
          *       content:
@@ -41,34 +66,34 @@ class ActivityRoutes {
          *             properties:
          *               title:
          *                 type: string
-         *                 description: Título da atividade
+         *                 description: Título da atividade.
          *               description:
          *                 type: string
-         *                 description: Descrição da atividade
+         *                 description: Descrição da atividade.
          *               time:
          *                 type: string
          *                 pattern: "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
-         *                 description: Hora da atividade
+         *                 description: Hora da atividade no formato HH:mm.
          *               date:
          *                 type: string
          *                 format: date
-         *                 description: Data da atividade
+         *                 description: Data da atividade no formato YYYY-MM-DD.
          *               location:
          *                 type: string
-         *                 description: Localização da atividade
+         *                 description: Localização da atividade.
          *               speakerId:
          *                 type: array
          *                 items:
          *                   type: number
-         *                   description: ID do palestrante
-         *                 description: Lista de IDs de palestrantes
+         *                   description: ID do palestrante.
+         *                 description: Lista de IDs dos palestrantes associados à atividade.
          *     responses:
          *       201:
-         *         description: Atividade criada com sucesso
+         *         description: Atividade criada com sucesso.
          *       400:
-         *         description: Dados inválidos
+         *         description: Dados inválidos fornecidos no corpo da requisição.
          *       500:
-         *         description: Erro ao tentar criar a atividade
+         *         description: Erro ao tentar criar a atividade.
          */
         this.router.post("/activities", ActivityController.create);
     }
