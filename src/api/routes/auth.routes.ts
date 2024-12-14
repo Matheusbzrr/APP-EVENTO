@@ -1,5 +1,5 @@
 import { Router } from "express";
-import AuthController from "../api/controllers/auth.controller";
+import AuthController from "../controllers/auth.controller";
 
 class AuthRoutes {
   router = Router();

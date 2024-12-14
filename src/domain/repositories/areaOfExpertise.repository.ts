@@ -1,4 +1,4 @@
-import { AppDataSource } from "../db/data-source";
+import { AppDataSource } from "../../infrastructure/db/data-source";
 import { AreaOfExpertise } from "../models/areaOfExpertise";
 import { CreateAreaOfExpertiseDTO } from "../dtos/areaOfExpertise/CreateAreaOfExpertiseDTO";
 import { AreaOfExpertiseDTO } from "../dtos/areaOfExpertise/AreaOfExpertiseDTO";

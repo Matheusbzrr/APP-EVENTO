@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import speakerService from "../services/speaker.service";
-import { CreateSpeakerDTO } from "../dtos/speaker/createSpeaker.dto";
+import speakerService from "../../domain/services/speaker.service";
+import { CreateSpeakerDTO } from "../../domain/dtos/speaker/createSpeaker.dto";
 
 class SpeakerController {
     constructor() {

@@ -1,4 +1,4 @@
-import { AppDataSource } from "../db/data-source";
+import { AppDataSource } from "../../infrastructure/db/data-source";
 import { ActivityDTO } from "../dtos/activity/activity.dto";
 import { CreateActivityDTO } from "../dtos/activity/createActivity.dto";
 import { Activity } from "../models/activity";

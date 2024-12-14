@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import participantService from "../services/participant.service";
-import { CreateParticipantDTO } from "../dtos/participant/CreateParticipantDTO";
+import participantService from "../../domain/services/participant.service";
+import { CreateParticipantDTO } from "../../domain/dtos/participant/CreateParticipantDTO";
 
 class ParticipantController {
     async findAll(req: Request, res: Response): Promise<void> {

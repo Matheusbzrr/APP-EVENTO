@@ -1,9 +1,9 @@
 import { Router } from "express";
-import activityController from "../api/controllers/activity.controller";
+import ActivityController from "../controllers/activity.controller";
 
 class ActivityRoutes {
     router = Router();
-    controller = activityController;
+    controller = ActivityController;
 
     constructor() {
         this.initializeRoutes();
@@ -23,7 +23,7 @@ class ActivityRoutes {
          *       500:
          *         description: Erro ao tentar listar as atividades
          */
-        this.router.get("/activities", activityController.findAll);
+        this.router.get("/activities", ActivityController.findAll);
 
         /**
          * @openapi
@@ -70,7 +70,7 @@ class ActivityRoutes {
          *       500:
          *         description: Erro ao tentar criar a atividade
          */
-        this.router.post("/activities", activityController.create);
+        this.router.post("/activities", ActivityController.create);
     }
 }
 

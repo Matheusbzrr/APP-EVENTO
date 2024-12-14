@@ -1,9 +1,9 @@
 import { Router } from "express";
-import SpeakerController from "../api/controllers/speaker.controller";
+import speakerController from "../controllers/speaker.controller";
 
 class SpeakerRoutes {
     router = Router();
-    controller = new SpeakerController();
+    controller = new speakerController();
 
     constructor() {
         this.initializeRoutes();

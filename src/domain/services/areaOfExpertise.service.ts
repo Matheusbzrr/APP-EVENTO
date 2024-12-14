@@ -1,6 +1,6 @@
-import areaOfExpertiseRepository from "../repositories/areaOfExpertise.repository";
-import { CreateAreaOfExpertiseDTO } from "../dtos/areaOfExpertise/CreateAreaOfExpertiseDTO";
 import { AreaOfExpertiseDTO } from "../dtos/areaOfExpertise/AreaOfExpertiseDTO";
+import { CreateAreaOfExpertiseDTO } from "../dtos/areaOfExpertise/CreateAreaOfExpertiseDTO";
+import areaOfExpertiseRepository from "../repositories/areaOfExpertise.repository";
 
 class AreaOfExpertiseService {
     async getAllAreas(): Promise<AreaOfExpertiseDTO[]> {

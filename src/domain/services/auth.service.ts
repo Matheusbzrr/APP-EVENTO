@@ -1,7 +1,8 @@
 import { Repository } from "typeorm";
-import { Participant } from "../models/participant";
-import { AppDataSource } from "../db/data-source";
+
 import jwt from "jsonwebtoken";
+import { Participant } from "../models/participant";
+import { AppDataSource } from "../../infrastructure/db/data-source";
 
 export class AuthService {
   private participantRepository: Repository<Participant>;

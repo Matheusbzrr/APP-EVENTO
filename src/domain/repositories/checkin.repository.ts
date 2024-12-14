@@ -1,4 +1,4 @@
-import { AppDataSource } from "../db/data-source";
+import { AppDataSource } from "../../infrastructure/db/data-source";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
 import { CreateCheckinDTO } from "../dtos/checkin/CreateCheckinDTO";
 import { Checkin } from "../models/checkin";

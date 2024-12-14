@@ -1,5 +1,5 @@
 // src/repositories/participant.repository.ts
-import { AppDataSource } from "../db/data-source";
+import { AppDataSource } from "../../infrastructure/db/data-source";
 import { CreateParticipantDTO } from "../dtos/participant/CreateParticipantDTO";
 import { ParticipantDTO } from "../dtos/participant/participant.dto";
 import { Participant } from "../models/participant";

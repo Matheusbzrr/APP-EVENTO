@@ -1,7 +1,6 @@
-import checkinRepository from "../repositories/checkin.repository";
-import { CreateCheckinDTO } from "../dtos/checkin/CreateCheckinDTO";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
-
+import { CreateCheckinDTO } from "../dtos/checkin/CreateCheckinDTO";
+import checkinRepository from "../repositories/checkin.repository";
 class CheckinService {
     async getAllCheckins(): Promise<CheckinDTO[]> {
         return await checkinRepository.findAll();
