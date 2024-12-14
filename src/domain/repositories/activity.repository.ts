@@ -4,6 +4,7 @@ import { CreateActivityDTO } from "../dtos/activity/createActivity.dto";
 import { Activity } from "../models/activity";
 import { Speaker } from "../models/speaker";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
+import { LikeDTO } from "../dtos/like/like.dto";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -15,8 +16,9 @@ class ActivityRepository {
                 .createQueryBuilder('activity')
                 .leftJoinAndSelect('activity.checkins', 'checkin')
                 .leftJoinAndSelect('checkin.participant', 'participant')
-                .leftJoinAndSelect('checkin.activity', 'activityRelation')
                 .leftJoinAndSelect('activity.speaker', 'speaker')
+                .leftJoinAndSelect('activity.likes', 'like')
+                .leftJoinAndSelect('like.participant', 'likeParticipant')
                 .getMany();
 
             return activities.map(activity => ({
@@ -42,6 +44,17 @@ class ActivityRepository {
                     idSpeaker: speaker.idSpeaker,
                     name: speaker.name ?? "Sem nome",
                 })),
+                likes: activity.likes?.map(like => ({
+                    idLike: like.idLike,
+                    participant: like.participant ? {
+                        idParticipant: like.participant.idParticipant,
+                        name: like.participant.name ?? "Sem nome",
+                        email: like.participant.email ?? "Sem e-mail",
+                        companyName: like.participant.companyName ?? "Sem empresa",
+                        postPermission: like.participant.postPermission ?? 0,
+                    } : null,
+                    idActivity: like.activity?.idActivity ?? 0,
+                })) as LikeDTO[],
             }));
         } catch (error) {
             console.error("Erro ao buscar todas as atividades:", error);
@@ -76,6 +89,7 @@ class ActivityRepository {
                     name: speaker.name,
                 })),
                 checkins: [],
+                likes: [], // Novo campo likes adicionado
             };
         } catch (error) {
             console.error("Erro ao criar atividade:", error);

@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Checkin } from './checkin';
 import { Speaker } from './speaker';
+import { Like } from './like';
+
 @Entity({ name: 'Activity' })
 export class Activity {
     @PrimaryGeneratedColumn({ type: 'int' })
@@ -24,15 +26,14 @@ export class Activity {
     @OneToMany(() => Checkin, checkin => checkin.activity)
     checkins!: Checkin[];
 
-    @ManyToMany(() => Speaker, {onUpdate: 'CASCADE', onDelete: 'CASCADE'})
+    @OneToMany(() => Like, like => like.activity)
+    likes!: Like[];
+
+    @ManyToMany(() => Speaker, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
     @JoinTable()
     speaker?: Speaker[];
 
-    constructor(title: string,
-                description: string,
-                time: string,
-                location: string) 
-    {
+    constructor(title: string, description: string, time: string, location: string) {
         this.title = title;
         this.description = description;
         this.time = time;

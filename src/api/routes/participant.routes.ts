@@ -3,7 +3,7 @@ import ParticipantController from "../controllers/participant.controller";
 
 class ParticipantRoutes {
     router = Router();
-    controller = ParticipantController; 
+    controller = ParticipantController;
 
     constructor() {
         this.initializeRoutes();
@@ -12,26 +12,86 @@ class ParticipantRoutes {
     initializeRoutes() {
         /**
          * @openapi
-         * /appevento/participants:
+         * /participants/email/{email}:
          *   get:
          *     tags:
          *       - Participants
+         *     summary: Busca participante por e-mail
+         *     description: Retorna os dados de um participante a partir do e-mail fornecido.
+         *     parameters:
+         *       - in: path
+         *         name: email
+         *         required: true
+         *         description: E-mail do participante a ser buscado
+         *         schema:
+         *           type: string
+         *           example: joao.silva@example.com
+         *     responses:
+         *       200:
+         *         description: Dados do participante encontrados.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: object
+         *               properties:
+         *                 idParticipant:
+         *                   type: string
+         *                 name:
+         *                   type: string
+         *                 email:
+         *                   type: string
+         *                 companyName:
+         *                   type: string
+         *                 postPermission:
+         *                   type: number
+         *       404:
+         *         description: Participante não encontrado.
+         *       500:
+         *         description: Erro interno do servidor.
+         */
+        this.router.get("/participants/email/:email", this.controller.findByEmail);
+
+        /**
+         * @openapi
+         * /participants:
+         *   get:
+         *     tags:
+         *       - Participants
+         *     summary: Lista todos os participantes
          *     description: Retorna todos os participantes cadastrados.
          *     responses:
          *       200:
-         *         description: Lista de participantes
+         *         description: Lista de participantes.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: array
+         *               items:
+         *                 type: object
+         *                 properties:
+         *                   idParticipant:
+         *                     type: string
+         *                   name:
+         *                     type: string
+         *                   email:
+         *                     type: string
+         *                   companyName:
+         *                     type: string
+         *                   postPermission:
+         *                     type: number
          *       500:
-         *         description: Erro ao tentar listar participantes
+         *         description: Erro ao tentar listar participantes.
          */
         this.router.get("/participants", this.controller.findAll);
 
         /**
          * @openapi
-         * /appevento/participants:
+         * /participants:
          *   post:
          *     tags:
          *       - Participants
-         *     description: Cria um novo participante
+         *     summary: Cria um novo participante
+         *     description: Cria um novo participante com os dados fornecidos.
          *     requestBody:
          *       required: true
          *       content:
@@ -59,11 +119,11 @@ class ParticipantRoutes {
          *                 example: 1
          *     responses:
          *       201:
-         *         description: Participante criado com sucesso
+         *         description: Participante criado com sucesso.
          *       400:
-         *         description: Dados inválidos
+         *         description: Dados inválidos.
          *       500:
-         *         description: Erro ao tentar criar participante
+         *         description: Erro ao tentar criar participante.
          */
         this.router.post("/participants", this.controller.create);
     }

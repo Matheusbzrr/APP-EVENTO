@@ -1,9 +1,9 @@
 import { Router } from "express";
-import CheckinController from "../controllers/checkin.controller";
+import LikeController from "../controllers/like.controller";
 
-class CheckinRoutes {
+class LikeRoutes {
     router = Router();
-    controller = CheckinController;
+    controller = LikeController;
 
     constructor() {
         this.initializeRoutes();
@@ -12,15 +12,15 @@ class CheckinRoutes {
     initializeRoutes() {
         /**
          * @openapi
-         * /checkins:
+         * /likes:
          *   get:
          *     tags:
-         *       - Checkins
-         *     summary: Obter todos os checkins
-         *     description: Retorna a lista de todos os checkins cadastrados no sistema.
+         *       - Likes
+         *     summary: Obter todos os likes
+         *     description: Retorna a lista de todos os likes cadastrados no sistema.
          *     responses:
          *       200:
-         *         description: Lista de checkins cadastrados com sucesso.
+         *         description: Lista de likes cadastrados com sucesso.
          *         content:
          *           application/json:
          *             schema:
@@ -28,28 +28,28 @@ class CheckinRoutes {
          *               items:
          *                 type: object
          *                 properties:
-         *                   id:
+         *                   idLike:
          *                     type: number
-         *                     description: ID único do checkin.
+         *                     description: ID único do like.
          *                   idParticipant:
          *                     type: number
-         *                     description: ID do participante que realizou o checkin.
+         *                     description: ID do participante que realizou o like.
          *                   idActivity:
          *                     type: number
-         *                     description: ID da atividade em que o checkin foi realizado.
+         *                     description: ID da atividade que recebeu o like.
          *       500:
-         *         description: Erro ao tentar listar os checkins.
+         *         description: Erro ao tentar listar os likes.
          */
-        this.router.get("/checkins", this.controller.findAll);
+        this.router.get("/likes", this.controller.findAll);
 
         /**
          * @openapi
-         * /checkins:
+         * /likes:
          *   post:
          *     tags:
-         *       - Checkins
-         *     summary: Criar um novo checkin
-         *     description: Endpoint para criar um novo checkin no sistema.
+         *       - Likes
+         *     summary: Criar um novo like
+         *     description: Endpoint para criar um novo like no sistema.
          *     requestBody:
          *       required: true
          *       content:
@@ -59,22 +59,22 @@ class CheckinRoutes {
          *             properties:
          *               idParticipant:
          *                 type: number
-         *                 description: ID do participante que realizou o checkin.
+         *                 description: ID do participante que realizou o like.
          *                 example: 1
          *               idActivity:
          *                 type: number
-         *                 description: ID da atividade em que o checkin foi realizado.
+         *                 description: ID da atividade que recebeu o like.
          *                 example: 2
          *     responses:
          *       201:
-         *         description: Checkin criado com sucesso.
+         *         description: Like criado com sucesso.
          *       400:
          *         description: Dados inválidos fornecidos no corpo da requisição.
          *       500:
-         *         description: Erro ao tentar criar o checkin.
+         *         description: Erro ao tentar criar o like.
          */
-        this.router.post("/checkins", this.controller.create);
+        this.router.post("/likes", this.controller.create);
     }
 }
 
-export default new CheckinRoutes().router;
+export default new LikeRoutes().router;

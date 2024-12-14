@@ -6,7 +6,9 @@ class ParticipantService {
     async getAllParticipants(): Promise<ParticipantDTO[]> {
         return await participantRepository.findAll();
     }
-
+    async getParticipantByEmail(email: string): Promise<ParticipantDTO | null> {
+        return await participantRepository.findByEmail(email);
+    }
     async createParticipant(participantData: CreateParticipantDTO): Promise<ParticipantDTO> {
         return await participantRepository.create(participantData);
     }

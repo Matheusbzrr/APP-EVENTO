@@ -18,7 +18,7 @@ class AuthController {
         return;
       }
 
-      res.json({ token });
+      res.json({ token, email });
     } catch (error) {
       console.error("Erro ao realizar login:", error);
       res.status(500).json({ error: "Erro no servidor" });
