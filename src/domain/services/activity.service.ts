@@ -11,6 +11,9 @@ class ActivityService {
     async createActivity(activityData: CreateActivityDTO): Promise<ActivityDTO> {
         return await activityRepository.create(activityData);
     }
+    async deleteActivity(id: number): Promise<void> {
+        await activityRepository.delete(id);
+    }
 }
 
 export default new ActivityService();

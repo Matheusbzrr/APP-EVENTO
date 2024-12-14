@@ -38,6 +38,19 @@ class ActivityController {
             });
         }
     }
+    async delete(req: Request, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            await activityService.deleteActivity(Number(id));
+            res.status(204).send(); // No content response
+        } catch (err: any) {
+            console.error("Erro ao excluir atividade:", err.message || err);
+            res.status(500).send({
+                message: "Erro ao excluir atividade",
+                error: err.message || "Erro desconhecido"
+            });
+        }
+    }
 }
 
 export default new ActivityController();
