@@ -14,6 +14,8 @@ class CheckinRoutes {
          * @openapi
          * /appevento/checkins:
          *   get:
+         *     tags:
+         *       - Checkins
          *     description: Retorna todos os checkins cadastrados.
          *     responses:
          *       200:
@@ -27,6 +29,8 @@ class CheckinRoutes {
          * @openapi
          * /appevento/checkins:
          *   post:
+         *     tags:
+         *       - Checkins
          *     description: Cria um novo checkin
          *     requestBody:
          *       required: true
@@ -37,8 +41,12 @@ class CheckinRoutes {
          *             properties:
          *               idParticipant:
          *                 type: number
+         *                 description: ID do participante que realizou o checkin
+         *                 example: 1
          *               idActivity:
          *                 type: number
+         *                 description: ID da atividade em que o checkin foi realizado
+         *                 example: 2
          *     responses:
          *       201:
          *         description: Checkin criado com sucesso

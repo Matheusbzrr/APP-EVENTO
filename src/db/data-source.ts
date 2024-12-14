@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { config } from "../config/db.config"; 
-import { Categoria } from "../models/categoria";
 import { Activity } from "../models/activity";
 import { AreaOfExpertise } from "../models/areaOfExpertise";
 import { Checkin } from "../models/checkin";
@@ -18,7 +17,6 @@ export const AppDataSource = new DataSource({
     database: config.DB!,
     entities: [
         Activity,
-        Categoria,
         AreaOfExpertise,
         Checkin,
         Participant,
