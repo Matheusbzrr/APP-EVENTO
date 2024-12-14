@@ -2,7 +2,7 @@
 import { AppDataSource } from "../db/data-source";
 import { CreateParticipantDTO } from "../dtos/participant/CreateParticipantDTO";
 import { ParticipantDTO } from "../dtos/participant/participant.dto";
-import { Participant } from "../models/participant";
+import { Participant } from "../domain/models/participant";
 
 class ParticipantRepository {
     participantRepository = AppDataSource.getRepository(Participant);

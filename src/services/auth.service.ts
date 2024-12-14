@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { Participant } from "../models/participant";
+import { Participant } from "../domain/models/participant";
 import { AppDataSource } from "../db/data-source";
 import jwt from "jsonwebtoken";
 
