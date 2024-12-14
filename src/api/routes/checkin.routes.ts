@@ -1,9 +1,9 @@
 import { Router } from "express";
-import checkinController from "../api/controllers/checkin.controller";
+import CheckinController from "../controllers/checkin.controller";
 
 class CheckinRoutes {
     router = Router();
-    controller = checkinController;
+    controller = CheckinController;
 
     constructor() {
         this.initializeRoutes();
