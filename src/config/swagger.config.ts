@@ -6,9 +6,10 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "APP EVENTO API",
+      title: "API NRF Retails",
       version: "1.0.0",
-      description: "Documentação da API para o APP EVENTO",
+      description: "Documentação da API para o evento Retails",
+      
     },
     servers: [
       {
