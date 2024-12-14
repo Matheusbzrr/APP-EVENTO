@@ -7,6 +7,7 @@ import { Checkin } from "../../domain/models/checkin";
 import { Participant } from "../../domain/models/participant";
 import { Post } from "../../domain/models/post";
 import { Speaker } from "../../domain/models/speaker";
+import { Like } from "../../domain/models/like";
 
 export const AppDataSource = new DataSource({
     type: config.dialect as "mysql" | "postgres" | "sqlite" | "mssql" | "oracle",
@@ -21,7 +22,8 @@ export const AppDataSource = new DataSource({
         Checkin,
         Participant,
         Post,
-        Speaker
+        Speaker,
+        Like
     ],
     synchronize: true,
     logging: false,

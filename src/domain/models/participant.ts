@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany } from 't
 import { Checkin } from './checkin';
 import { Post } from './post';
 import { AreaOfExpertise } from './areaOfExpertise';
+import { Like } from './like'; 
 
 @Entity({ name: 'Participant' })
 export class Participant {
@@ -26,8 +27,11 @@ export class Participant {
     @OneToMany(() => Post, post => post.participant)
     posts!: Post[];
 
-    @ManyToMany(() => AreaOfExpertise, areaofexpertise => areaofexpertise.participant, {onUpdate: 'CASCADE'})
+    @ManyToMany(() => AreaOfExpertise, areaofexpertise => areaofexpertise.participant, { onUpdate: 'CASCADE' })
     areaofexpertise?: AreaOfExpertise[];
+
+    @OneToMany(() => Like, like => like.participant) 
+    likes!: Like[];
 
     constructor(
         name: string,
