@@ -5,7 +5,9 @@ import { Activity } from "../models/activity";
 import { Speaker } from "../models/speaker";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
 import { LikeDTO } from "../dtos/like/like.dto";
-import { DatabaseError } from "../../infrastructure/utils/CustomErrors";
+import { DatabaseError } from "../exceptions/data-base-error";
+import { NotFoundError } from "../exceptions/not-found-error";
+import { ValidationError } from "../exceptions/validation-error";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -25,9 +27,8 @@ class ActivityRepository {
                 
                 if (!activities) {
                     console.error("Nenhuma atividade encontrada no banco de dados.");
-                    throw new Error("Nenhuma atividade disponível no momento.");
+                    throw new NotFoundError("Nenhuma atividade disponível no momento.");
                 }
-        
 
             return activities.map(activity => ({
                 idActivity: activity.idActivity,
@@ -64,22 +65,39 @@ class ActivityRepository {
                     idActivity: like.activity?.idActivity ?? 0,
                 })) as LikeDTO[],
             }));
-        } catch (error){ 
-        if (error instanceof TypeError) {
-            console.error("Erro de tipo:", error.message);
-            throw new Error("Erro interno no servidor. Por favor, tente novamente mais tarde.");
-        } else if (error instanceof DatabaseError) { 
-            console.error("Erro no banco de dados:", error.message);
-            throw new Error("Falha ao tentar acessar as Atividades!");
-        } else {
-            console.error("Erro desconhecido:", error);
-            throw new Error("Falha ao retornar as Atividades!");
-        }
+        } catch (error:any) {
+            if (error instanceof TypeError) {
+                console.error("Erro de tipo:", error.message);
+                throw new TypeError("Erro interno no servidor. Por favor, tente novamente mais tarde.");
+            } else if (error.nome === "QueryFailedError") {
+                console.error("Erro no banco de dados:", error.message);
+                throw new DatabaseError("Falha ao tentar acessar as Atividades! Por favor, tente novamente.");
+            } else if (error instanceof NotFoundError) {
+                console.error("Erro: Nenhuma atividade encontrada.", error.message);
+                throw error;
+            } else {
+                console.error("Erro inesperado:", error);
+                throw new Error("Erro desconhecido. Por favor, entre em contato com o suporte.");
+            }
         }
     }
 
     async create(activityData: CreateActivityDTO): Promise<ActivityDTO> {
         try {
+
+            if (!activityData.title || !activityData.date || !activityData.time || !activityData.location || !activityData.speakerId) {
+                throw new ValidationError("Dados obrigatórios faltando: título, data, hora, localização ou palestrantes.");
+            }
+    
+            
+            if (isNaN(new Date(activityData.date).getTime())) {
+                throw new ValidationError("O campo 'data' deve ser uma data válida.");
+            }
+
+            if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(activityData.time)) {
+                throw new ValidationError("O campo 'hora' deve ser um horário válido no formato HH:mm.");
+            }
+    
             const formattedTime = activityData.time;
             const activity = this.activityRepository.create({ 
                 ...activityData, 
@@ -108,23 +126,34 @@ class ActivityRepository {
                 likes: [], // Novo campo likes adicionado
             };
 
-
-
-
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao criar atividade:", error);
-            throw new Error("Falha ao criar a Atividade!");
+            if (error instanceof ValidationError) {
+                throw error;
+            } else if (error.nome === "QueryFailedError") {
+                throw new DatabaseError("Falha ao criar a Atividade no banco de dados!");
+            } else{
+                throw new TypeError("Falha inesperada ao criar a atividade!");
+            }
+    
+            
         }
     }
     async delete(id: number): Promise<void> {
         try {
             const result = await this.activityRepository.delete(id);
             if (result.affected === 0) {
-                throw new Error("Atividade não encontrada ou já excluída.");
+                throw new NotFoundError("Atividade não encontrada ou já excluída.");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao excluir atividade:", error);
-            throw new DatabaseError("Falha ao excluir a Atividade!");
+            if (error instanceof NotFoundError) {
+                throw error;
+            } else if (error.nome === "QueryFailedError") {
+                throw new DatabaseError("Falha ao criar a Atividade no banco de dados!");
+            } else{
+                throw new TypeError("Falha inesperada ao criar a atividade!");
+            }
         }
     }
 }

@@ -1,9 +1,11 @@
 import { AppDataSource } from "../../infrastructure/db/data-source";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
 import { CreateCheckinDTO } from "../dtos/checkin/CreateCheckinDTO";
+import { DatabaseError } from "../exceptions/data-base-error";
+import { NotFoundError } from "../exceptions/not-found-error";
+import { RecordNotFoundError } from "../exceptions/record-not-found";
 import { Checkin } from "../models/checkin";
 import { Participant } from "../models/participant";
-import { DatabaseError, RecordNotFoundError } from "../../infrastructure/utils/CustomErrors";
 
 class CheckinRepository {
     checkinRepository = AppDataSource.getRepository(Checkin);
@@ -13,6 +15,10 @@ class CheckinRepository {
             const checkins = await this.checkinRepository.find({
                 relations: ["participant", "activity"],
             });
+
+            if(!checkins){
+                throw new NotFoundError("Nenhum checkin encontrado.");
+            }
 
             return checkins.map(checkin => ({
                 idCheckin: checkin.idCheckin,
@@ -26,9 +32,15 @@ class CheckinRepository {
                 idActivity: checkin.activity?.idActivity ?? 0,
                 checkinDateTime: checkin.checkinDateTime,
             })) as CheckinDTO[]; 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao buscar todos os checkins:", error);
-            throw new DatabaseError("Falha ao retornar os Checkins.");
+            if(error instanceof NotFoundError){
+                throw error;
+            } else if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Falha ao criar o Checkin no banco de dados!");
+            } else{
+                throw new TypeError("Falha inesperada ao realizar a operação!");
+            }
         }
     }
 
@@ -40,9 +52,8 @@ class CheckinRepository {
             });
 
             if (!participant) {
-                throw new RecordNotFoundError("Participante", checkinData.idParticipant.toString());
+                throw new RecordNotFoundError("Erro ao tentar achar o participante de id:", checkinData.idParticipant.toString());
             }
-
             const checkin = this.checkinRepository.create({
                 participant: participant, 
                 activity: { idActivity: checkinData.idActivity },
@@ -62,12 +73,15 @@ class CheckinRepository {
                 idActivity: savedCheckin.activity?.idActivity ?? 0,
                 checkinDateTime: savedCheckin.checkinDateTime,
             };
-        } catch (error) {
+        } catch (error: any) {
+            console.error("Erro ao criar checkin:", error);
             if (error instanceof RecordNotFoundError) {
                 throw error;
-            }
-            console.error("Erro ao criar checkin:", error);
-            throw new DatabaseError("Falha ao criar o Checkin!");
+            } else if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Falha ao criar o Checkin no banco de dados!");
+            } else {
+                throw new TypeError("Falha inesperada ao criar o Checkin!");
+            }         
         }
     }
 }
