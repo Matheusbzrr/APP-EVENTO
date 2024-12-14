@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import AuthService from "../services/auth.service";
+import authService from "../../domain/services/auth.service";
 
 class AuthController {
   static async login(req: Request, res: Response): Promise<void> {
@@ -11,7 +11,7 @@ class AuthController {
     }
 
     try {
-      const token = await AuthService.login(email);
+      const token = await authService.login(email);
 
       if (!token) {
         res.status(401).json({ error: "E-mail não encontrado" });

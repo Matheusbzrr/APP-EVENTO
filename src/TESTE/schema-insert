@@ -1,6 +1,0 @@
-create schema appevento;
-
-use appevento;
-
-insert into categoria(nome, descricao)
-	values("nomeCategoria", "qualquer");

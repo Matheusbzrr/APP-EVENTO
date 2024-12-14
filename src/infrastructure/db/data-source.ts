@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { config } from "../config/db.config"; 
-import { Activity } from "../domain/models/activity";
-import { AreaOfExpertise } from "../domain/models/areaOfExpertise";
-import { Checkin } from "../domain/models/checkin";
-import { Participant } from "../domain/models/participant";
-import { Post } from "../domain/models/post";
-import { Speaker } from "../domain/models/speaker";
+import { config } from "../../config/db.config"; 
+import { Activity } from "../../domain/models/activity";
+import { AreaOfExpertise } from "../../domain/models/areaOfExpertise";
+import { Checkin } from "../../domain/models/checkin";
+import { Participant } from "../../domain/models/participant";
+import { Post } from "../../domain/models/post";
+import { Speaker } from "../../domain/models/speaker";
 
 export const AppDataSource = new DataSource({
     type: config.dialect as "mysql" | "postgres" | "sqlite" | "mssql" | "oracle",

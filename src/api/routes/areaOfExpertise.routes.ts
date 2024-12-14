@@ -1,9 +1,9 @@
 import { Router } from "express";
-import areaOfExpertiseController from "../api/controllers/areaOfExpertise.controller";
+import AreaOfExpertiseController from "../controllers/areaOfExpertise.controller";
 
 class AreaOfExpertiseRoutes {
     router = Router();
-    controller = areaOfExpertiseController;
+    controller = AreaOfExpertiseController;
 
     constructor() {
         this.initializeRoutes();

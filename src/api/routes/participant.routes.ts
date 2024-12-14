@@ -1,9 +1,9 @@
 import { Router } from "express";
-import participantController from "../api/controllers/participant.controller";
+import ParticipantController from "../controllers/participant.controller";
 
 class ParticipantRoutes {
     router = Router();
-    controller = participantController; 
+    controller = ParticipantController; 
 
     constructor() {
         this.initializeRoutes();

@@ -1,7 +1,7 @@
-import { AppDataSource } from "../db/data-source";
+import { AppDataSource } from "../../infrastructure/db/data-source";
 import { CreateSpeakerDTO } from "../dtos/speaker/createSpeaker.dto";
 import { SpeakerDTO } from "../dtos/speaker/speaker.dto";
-import { Speaker } from "../domain/models/speaker";
+import { Speaker } from "../models/speaker";
 
 class SpeakerRepository {
     speakerRepository = AppDataSource.getRepository(Speaker);

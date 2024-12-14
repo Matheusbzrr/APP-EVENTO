@@ -1,8 +1,8 @@
 import express, { Application } from 'express';
 import cors, { CorsOptions } from 'cors';
-import Routes from './routes/routes';
-import { AppDataSource } from './db/data-source';
-import { swaggerUi, swaggerSpec } from './swagger'; 
+import Routes from './api/routes/routes';
+import { AppDataSource } from './infrastructure/db/data-source';
+import { swaggerUi, swaggerSpec } from './config/swagger.config'; 
 
 export default class Server {
     constructor(app: Application) {

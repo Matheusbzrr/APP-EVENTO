@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import activityService from "../services/activity.service";
-import { CreateActivityDTO } from "../dtos/activity/createActivity.dto";
-
+import activityService from "../../domain/services/activity.service";
+import { CreateActivityDTO } from "../../domain/dtos/activity/createActivity.dto";
 class ActivityController {
     async findAll(req: Request, res: Response): Promise<void> {
         try {

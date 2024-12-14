@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import areaOfExpertiseService from "../services/areaOfExpertise.service";
-import { CreateAreaOfExpertiseDTO } from "../dtos/areaOfExpertise/CreateAreaOfExpertiseDTO";
-
+import areaOfExpertiseService from "../../domain/services/areaOfExpertise.service";
+import { CreateAreaOfExpertiseDTO } from "../../domain/dtos/areaOfExpertise/CreateAreaOfExpertiseDTO";
 class AreaOfExpertiseController {
     async findAll(req: Request, res: Response): Promise<void> {
         try {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import checkinService from "../services/checkin.service";
-import { CreateCheckinDTO } from "../dtos/checkin/CreateCheckinDTO";
+import checkinService from "../../domain/services/checkin.service";
+import { CreateCheckinDTO } from "../../domain/dtos/checkin/CreateCheckinDTO";
 
 class CheckinController {
     async findAll(req: Request, res: Response): Promise<void> {

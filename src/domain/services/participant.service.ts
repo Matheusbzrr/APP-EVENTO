@@ -1,8 +1,7 @@
 // src/services/participant.service.ts
-import participantRepository from "../repositories/participant.repository";
-import { ParticipantDTO } from "../dtos/participant/participant.dto";
 import { CreateParticipantDTO } from "../dtos/participant/CreateParticipantDTO";
-
+import { ParticipantDTO } from "../dtos/participant/participant.dto";
+import participantRepository from "../repositories/participant.repository";
 class ParticipantService {
     async getAllParticipants(): Promise<ParticipantDTO[]> {
         return await participantRepository.findAll();
