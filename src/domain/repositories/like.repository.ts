@@ -3,6 +3,7 @@ import { CreateLikeDTO } from "../dtos/like/createLike.dto";
 import { LikeDTO } from "../dtos/like/like.dto";
 import { Like } from "../models/like";
 import { Participant } from "../models/participant";
+import { NotFoundError, DatabaseError} from "../../infrastructure/utils/CustomErrors";
 
 class LikeRepository {
     likeRepository = AppDataSource.getRepository(Like);
@@ -24,9 +25,14 @@ class LikeRepository {
                 } : null,
                 idActivity: like.activity?.idActivity ?? 0,
             })) as LikeDTO[];
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao buscar todos os likes:", error);
-            throw new Error("Falha ao retornar os Likes!");
+
+            if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Erro de consulta ao buscar likes.");
+            }
+
+            throw new DatabaseError("Erro ao acessar o banco de dados.");
         }
     }
 
@@ -37,7 +43,7 @@ class LikeRepository {
             });
 
             if (!participant) {
-                throw new Error("Participante não encontrado");
+                throw new NotFoundError("Participante não encontrado.");
             }
 
             const like = this.likeRepository.create({
@@ -58,9 +64,18 @@ class LikeRepository {
                 } : null,
                 idActivity: savedLike.activity?.idActivity ?? 0,
             };
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao criar like:", error);
-            throw new Error("Falha ao criar o Like!");
+
+            if (error instanceof NotFoundError) {
+                throw error;
+            }
+
+            if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Erro ao dar like");
+            }
+
+            throw new DatabaseError("Erro inesperado ao dar o Like.");
         }
     }
 }
