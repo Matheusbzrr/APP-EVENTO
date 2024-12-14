@@ -12,7 +12,7 @@ class CheckinRoutes {
     initializeRoutes() {
         /**
          * @openapi
-         * /appevento/checkins:
+         * /checkins:
          *   get:
          *     tags:
          *       - Checkins
@@ -27,7 +27,7 @@ class CheckinRoutes {
 
         /**
          * @openapi
-         * /appevento/checkins:
+         * /checkins:
          *   post:
          *     tags:
          *       - Checkins

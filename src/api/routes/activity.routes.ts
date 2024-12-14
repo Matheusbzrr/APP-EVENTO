@@ -12,7 +12,7 @@ class ActivityRoutes {
     initializeRoutes() {
         /**
          * @openapi
-         * /appevento/activities:
+         * /activities:
          *   get:
          *     tags:
          *       - Activities
@@ -27,7 +27,7 @@ class ActivityRoutes {
 
         /**
          * @openapi
-         * /appevento/activities:
+         * /activities:
          *   post:
          *     tags:
          *       - Activities

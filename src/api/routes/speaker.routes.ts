@@ -12,7 +12,7 @@ class SpeakerRoutes {
     initializeRoutes() {
         /**
          * @openapi
-         * /appevento/speakers:
+         * /speakers:
          *   get:
          *     tags:
          *       - Speakers
@@ -27,7 +27,7 @@ class SpeakerRoutes {
 
         /**
          * @openapi
-         * /appevento/speakers:
+         * /speakers:
          *   post:
          *     tags:
          *       - Speakers

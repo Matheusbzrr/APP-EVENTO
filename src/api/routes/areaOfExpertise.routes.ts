@@ -12,7 +12,7 @@ class AreaOfExpertiseRoutes {
     initializeRoutes() {
         /**
          * @openapi
-         * /appevento/areas:
+         * /areas:
          *   get:
          *     tags:
          *       - Areas of Expertise
@@ -27,7 +27,7 @@ class AreaOfExpertiseRoutes {
 
         /**
          * @openapi
-         * /appevento/areas:
+         * /areas:
          *   post:
          *     tags:
          *       - Areas of Expertise

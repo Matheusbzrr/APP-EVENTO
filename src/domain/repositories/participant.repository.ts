@@ -7,6 +7,28 @@ import { Participant } from "../models/participant";
 class ParticipantRepository {
     participantRepository = AppDataSource.getRepository(Participant);
 
+    async findByEmail(email: string): Promise<ParticipantDTO | null> {
+        try {
+            const participant = await this.participantRepository.findOne({
+                where: { email },
+            });
+    
+            if (!participant) {
+                return null;
+            }
+    
+            return {
+                idParticipant: participant.idParticipant,
+                name: participant.name,
+                email: participant.email,
+                companyName: participant.companyName,
+                postPermission: participant.postPermission,
+            };
+        } catch (error) {
+            console.error("Erro ao buscar participante por e-mail:", error);
+            throw new Error("Falha ao buscar o Participante pelo e-mail!");
+        }
+    }
     async findAll(): Promise<CreateParticipantDTO[]> {
         try {
             const participants = await this.participantRepository.find();
