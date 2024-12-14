@@ -116,6 +116,17 @@ class ActivityRepository {
             throw new Error("Falha ao criar a Atividade!");
         }
     }
+    async delete(id: number): Promise<void> {
+        try {
+            const result = await this.activityRepository.delete(id);
+            if (result.affected === 0) {
+                throw new Error("Atividade não encontrada ou já excluída.");
+            }
+        } catch (error) {
+            console.error("Erro ao excluir atividade:", error);
+            throw new DatabaseError("Falha ao excluir a Atividade!");
+        }
+    }
 }
 
 export default new ActivityRepository();
