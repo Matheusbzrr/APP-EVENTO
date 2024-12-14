@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import activityService from "../../domain/services/activity.service";
 import { CreateActivityDTO } from "../../domain/dtos/activity/createActivity.dto";
+import { DatabaseError } from "../../infrastructure/utils/CustomErrors";
 class ActivityController {
     async findAll(req: Request, res: Response): Promise<void> {
         try {
@@ -8,7 +9,17 @@ class ActivityController {
             res.json(activities);
         } catch (err) {
             console.error("Erro ao listar atividades:", err);
-            res.status(500).send({ message: "Erro ao tentar listar todas as atividades" });
+
+            if (err instanceof TypeError){
+                res.status(500).send({ message: err.message})
+            }
+            else if (err instanceof DatabaseError) {
+                res.status(500).send({ message: err.message });
+            }
+            else {
+                res.status(500).send({ message: "Erro ao tentar listar todas as atividades" });
+            }
+
         }
     }
 

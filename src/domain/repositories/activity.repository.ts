@@ -5,6 +5,7 @@ import { Activity } from "../models/activity";
 import { Speaker } from "../models/speaker";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
 import { LikeDTO } from "../dtos/like/like.dto";
+import { DatabaseError } from "../../infrastructure/utils/CustomErrors";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -20,6 +21,13 @@ class ActivityRepository {
                 .leftJoinAndSelect('activity.likes', 'like')
                 .leftJoinAndSelect('like.participant', 'likeParticipant')
                 .getMany();
+
+                
+                if (!activities) {
+                    console.error("Nenhuma atividade encontrada no banco de dados.");
+                    throw new Error("Nenhuma atividade disponível no momento.");
+                }
+        
 
             return activities.map(activity => ({
                 idActivity: activity.idActivity,
@@ -56,9 +64,17 @@ class ActivityRepository {
                     idActivity: like.activity?.idActivity ?? 0,
                 })) as LikeDTO[],
             }));
-        } catch (error) {
-            console.error("Erro ao buscar todas as atividades:", error);
+        } catch (error){ 
+        if (error instanceof TypeError) {
+            console.error("Erro de tipo:", error.message);
+            throw new Error("Erro interno no servidor. Por favor, tente novamente mais tarde.");
+        } else if (error instanceof DatabaseError) { 
+            console.error("Erro no banco de dados:", error.message);
+            throw new Error("Falha ao tentar acessar as Atividades!");
+        } else {
+            console.error("Erro desconhecido:", error);
             throw new Error("Falha ao retornar as Atividades!");
+        }
         }
     }
 
@@ -91,6 +107,10 @@ class ActivityRepository {
                 checkins: [],
                 likes: [], // Novo campo likes adicionado
             };
+
+
+
+
         } catch (error) {
             console.error("Erro ao criar atividade:", error);
             throw new Error("Falha ao criar a Atividade!");

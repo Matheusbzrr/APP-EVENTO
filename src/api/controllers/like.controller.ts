@@ -1,15 +1,21 @@
 import { Request, Response } from "express";
 import likeService from "../../domain/services/like.service";
 import { CreateLikeDTO } from "../../domain/dtos/like/createLike.dto";
+import { NotFoundError, ValidationError, DatabaseError} from "../../infrastructure/utils/CustomErrors";
 
 class LikeController {
     async findAll(req: Request, res: Response): Promise<void> {
         try {
             const likes = await likeService.getAllLikes();
             res.json(likes);
-        } catch (err) {
-            console.error("Erro ao listar likes:", err);
-            res.status(500).send({ message: "Erro ao tentar listar todos os likes" });
+        } catch (err: any) {
+            console.error("Erro ao listar likes:", err.message || err);
+
+            if (err instanceof DatabaseError) {
+                res.status(500).send({ message: "Erro ao acessar likes." });
+            } else {
+                res.status(500).send({ message: "Erro inesperado ao listar os likes." });
+            }
         }
     }
 
@@ -20,12 +26,19 @@ class LikeController {
             const like = await likeService.createLike(likeData);
             res.status(201).json(like);
         } catch (err: any) {
-            console.error("Erro ao criar like:", err.message || err);
-            res.status(500).send({
-                message: "Erro ao criar like",
-                error: err.message || "Erro desconhecido",
-            });
+            console.error("Erro ao dar like:", err.message || err);
+
+            if (err instanceof ValidationError) {
+                res.status(400).send({ message: err.message });
+            } else if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(500).send({ message: "Erro ao salvar." });
+            } else {
+                res.status(500).send({ message: "Erro inesperado ao dar o like." });
+            }
         }
+    
     }
 }
 

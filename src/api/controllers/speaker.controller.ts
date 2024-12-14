@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import speakerService from "../../domain/services/speaker.service";
 import { CreateSpeakerDTO } from "../../domain/dtos/speaker/createSpeaker.dto";
+import { DatabaseError, ConflictError } from "../../infrastructure/utils/CustomErrors";
 
 class SpeakerController {
     constructor() {
@@ -11,8 +12,12 @@ class SpeakerController {
             const speakers = await speakerService.getAllSpeakers();
             res.json(speakers);
         } catch (err) {
-            console.error("Erro ao listar speakers:", err); 
-            res.status(500).send({ message: "Erro ao tentar listar todos os speakers" });
+            console.error("Erro ao listar speakers:", err);
+            if (err instanceof DatabaseError) {
+                res.status(500).send({ message: err.message });
+            } else {
+                res.status(500).send({ message: "Erro ao tentar listar todos os speakers" });
+            }
         }
     }
 
@@ -24,11 +29,17 @@ class SpeakerController {
             const speaker = await speakerService.createSpeaker(speakerData);
             res.status(201).json(speaker);
         } catch (err: any) {
-            console.error("Erro ao criar speaker:", err.message || err); 
-            res.status(500).send({
-                message: "Erro ao criar speaker",
-                error: err.message || "Erro desconhecido"
-            });
+            console.error("Erro ao criar speaker:", err.message || err);
+            if (err instanceof ConflictError) {
+                res.status(409).send({ message: err.message })
+            } else if (err instanceof DatabaseError) {
+                res.status(500).send({ message: err.message });
+            } else {
+                res.status(500).send({
+                    message: "Erro ao criar speaker",
+                    error: err.message || "Erro desconhecido"
+                });
+            }
         }
     }
 }

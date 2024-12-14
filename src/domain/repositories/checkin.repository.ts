@@ -2,7 +2,8 @@ import { AppDataSource } from "../../infrastructure/db/data-source";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
 import { CreateCheckinDTO } from "../dtos/checkin/CreateCheckinDTO";
 import { Checkin } from "../models/checkin";
-import { Participant } from "../models/participant"; 
+import { Participant } from "../models/participant";
+import { DatabaseError, RecordNotFoundError } from "../../infrastructure/utils/CustomErrors";
 
 class CheckinRepository {
     checkinRepository = AppDataSource.getRepository(Checkin);
@@ -27,7 +28,7 @@ class CheckinRepository {
             })) as CheckinDTO[]; 
         } catch (error) {
             console.error("Erro ao buscar todos os checkins:", error);
-            throw new Error("Falha ao retornar os Checkins!");
+            throw new DatabaseError("Falha ao retornar os Checkins.");
         }
     }
 
@@ -39,7 +40,7 @@ class CheckinRepository {
             });
 
             if (!participant) {
-                throw new Error("Participante não encontrado");
+                throw new RecordNotFoundError("Participante", checkinData.idParticipant.toString());
             }
 
             const checkin = this.checkinRepository.create({
@@ -62,8 +63,11 @@ class CheckinRepository {
                 checkinDateTime: savedCheckin.checkinDateTime,
             };
         } catch (error) {
+            if (error instanceof RecordNotFoundError) {
+                throw error;
+            }
             console.error("Erro ao criar checkin:", error);
-            throw new Error("Falha ao criar o Checkin!");
+            throw new DatabaseError("Falha ao criar o Checkin!");
         }
     }
 }

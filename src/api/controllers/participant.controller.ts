@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import participantService from "../../domain/services/participant.service";
 import { CreateParticipantDTO } from "../../domain/dtos/participant/CreateParticipantDTO";
+import { NotFoundError, ValidationError, DatabaseError} from "../../infrastructure/utils/CustomErrors";
 
 class ParticipantController {
     async findByEmail(req: Request, res: Response): Promise<void> {
@@ -21,8 +22,19 @@ class ParticipantController {
     
             res.json(participant);
         } catch (err) {
-            console.error("Erro ao buscar participante por e-mail:", err);
-            res.status(500).send({ message: "Erro ao buscar participante por e-mail" });
+            if (err instanceof ValidationError) {
+                res.status(400).send({ message: err.message });
+            } else if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(500).send({
+                    message: "Erro ao buscar participante por e-mail",
+                    details: err.message,
+                });
+            } else {
+                console.error("Erro ao buscar participante por e-mail:", err);
+                res.status(500).send({ message: "Erro ao buscar participante por e-mail" });
+            }
         }
     }
     async findAll(req: Request, res: Response): Promise<void> {
@@ -30,8 +42,19 @@ class ParticipantController {
             const participants = await participantService.getAllParticipants(); 
             res.json(participants);
         } catch (err) {
-            console.error("Erro ao listar participantes:", err);
-            res.status(500).send({ message: "Erro ao tentar listar todos os participantes" });
+            if (err instanceof ValidationError) {
+                res.status(400).send({ message: err.message });
+            } else if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(500).send({
+                    message: "Erro ao tentar listar todos os participantes",
+                    details: err.message,
+                });
+            } else {
+                console.error("Erro ao listar participantes:", err);
+                res.status(500).send({ message: "Erro ao tentar listar todos os participantes" });
+            }
         }
     }
 
@@ -42,12 +65,20 @@ class ParticipantController {
 
             const participant = await participantService.createParticipant(participantData); 
             res.status(201).json(participant);
-        } catch (err: any) {
-            console.error("Erro ao criar participante:", err.message || err);
-            res.status(500).send({ 
-                message: "Erro ao criar participante",
-                error: err.message || "Erro desconhecido"
-            });
+        } catch (err) {
+            if (err instanceof ValidationError) {
+                res.status(400).send({ message: err.message });
+            } else if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(500).send({
+                    message: "Erro ao criar participante",
+                    details: err.message,
+                });
+            } else {
+                console.error("Erro ao criar participante:", err);
+                res.status(500).send({ message: "Erro ao criar participante" });
+            }
         }
     }
 }
