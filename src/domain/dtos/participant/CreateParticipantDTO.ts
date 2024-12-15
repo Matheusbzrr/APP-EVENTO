@@ -1,6 +1,3 @@
-
-
-
 export interface CreateParticipantDTO {
     idParticipant: number;
     name: string;

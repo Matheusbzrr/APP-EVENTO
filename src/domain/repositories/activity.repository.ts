@@ -21,7 +21,7 @@ class ActivityRepository {
                 .leftJoinAndSelect("checkin.participant", "participant")
                 .leftJoinAndSelect("participant.areaOfExpertise", "participantAreaOfExpertise")
                 .leftJoinAndSelect("activity.speaker", "speaker")
-                .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise") // Inclui a relação com áreas de expertise
+                .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise")
                 .getMany();
 
             if (!activities.length) {

@@ -13,6 +13,9 @@ export class Post {
     @Column({ length: 1000, nullable: true })
     description?: string;
 
+    @OneToMany(() => Like, like => like.post)
+        likes!: Like[];
+
     @ManyToOne(() => Participant, participant => participant.posts, {
         onDelete: 'CASCADE',
     })

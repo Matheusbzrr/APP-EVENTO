@@ -113,6 +113,23 @@ class LikeRepository {
             }
         }
     }
+
+    async CountLikesPerPost (idPost: number): Promise<any> {
+        try {
+
+           return await this.likeRepository.query(
+                'CALL CountLikesPerPostFiltre(?)',
+                [idPost]
+              
+            );
+            
+        }catch (error: any){
+            console.error('Erro ao contar likes por post:', error);
+            if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Erro ao guardar o Like no banco de dados.");
+            }
+        }
+    }
 }
 
 export default new LikeRepository;
