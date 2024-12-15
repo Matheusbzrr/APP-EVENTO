@@ -1,12 +1,9 @@
 import { Request, Response } from "express";
 import areaOfExpertiseService from "../../domain/services/areaOfExpertise.service";
 import { CreateAreaOfExpertiseDTO } from "../../domain/dtos/areaOfExpertise/CreateAreaOfExpertiseDTO";
-
-import {
-    ValidationError,
-    DatabaseError,
-    NotFoundError,
-} from "../../infrastructure/utils/CustomErrors";
+import { DatabaseError } from "../../domain/exceptions/data-base-error";
+import { ValidationError } from "../../domain/exceptions/validation-error";
+import { NotFoundError } from "../../domain/exceptions/not-found-error";
 
 class AreaOfExpertiseController {
     async findAll(req: Request, res: Response): Promise<void> {
@@ -19,7 +16,9 @@ class AreaOfExpertiseController {
             if (err instanceof NotFoundError) {
                 res.status(404).send({ message: err.message });
             } else if (err instanceof DatabaseError) {
-                res.status(500).send({ message: err.message });
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message:err.message });
             } else {
                 res.status(500).send({ message: "Erro desconhecido" });
             }
@@ -39,6 +38,8 @@ class AreaOfExpertiseController {
             if (err instanceof ValidationError) {
                 res.status(400).send({ message: err.message });
             } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message:err.message });
+            } else if (err instanceof TypeError) {
                 res.status(500).send({ message:err.message });
             } else {
                 res.status(500).send({

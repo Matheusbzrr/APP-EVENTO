@@ -1,9 +1,13 @@
 import { AppDataSource } from "../../infrastructure/db/data-source";
 import { CreateLikeDTO } from "../dtos/like/createLike.dto";
 import { LikeDTO } from "../dtos/like/like.dto";
+import { DatabaseError } from "../exceptions/data-base-error";
+import { NotFoundError } from "../exceptions/not-found-error";
+import { RecordNotFoundError } from "../exceptions/record-not-found";
 import { Like } from "../models/like";
 import { Participant } from "../models/participant";
-import { NotFoundError, DatabaseError} from "../../infrastructure/utils/CustomErrors";
+
+
 
 class LikeRepository {
     likeRepository = AppDataSource.getRepository(Like);
@@ -13,6 +17,10 @@ class LikeRepository {
             const likes = await this.likeRepository.find({
                 relations: ["participant", "activity"],
             });
+
+            if (!likes){
+                throw new NotFoundError("Like não encontrado")
+            }
 
             return likes.map(like => ({
                 idLike: like.idLike,
@@ -27,12 +35,13 @@ class LikeRepository {
             })) as LikeDTO[];
         } catch (error: any) {
             console.error("Erro ao buscar todos os likes:", error);
-
-            if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Erro de consulta ao buscar likes.");
+            if (error instanceof NotFoundError) {
+                throw error;
+            } else if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Falha ao criar o Checkin no banco de dados!");
+            } else {
+                throw new TypeError("Falha ao buscar todos os likes!");
             }
-
-            throw new DatabaseError("Erro ao acessar o banco de dados.");
         }
     }
 
@@ -43,7 +52,7 @@ class LikeRepository {
             });
 
             if (!participant) {
-                throw new NotFoundError("Participante não encontrado.");
+                throw new RecordNotFoundError("erro ao tentar achar likes do participante de id:", likeData.idParticipant.toString());
             }
 
             const like = this.likeRepository.create({
@@ -66,16 +75,13 @@ class LikeRepository {
             };
         } catch (error: any) {
             console.error("Erro ao criar like:", error);
-
-            if (error instanceof NotFoundError) {
+            if (error instanceof RecordNotFoundError) {
                 throw error;
-            }
-
-            if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Erro ao dar like");
-            }
-
-            throw new DatabaseError("Erro inesperado ao dar o Like.");
+            } else if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Erro ao guardar o Like no banco de dados.");
+            } else{
+                throw new TypeError("Erro inesperado ao guardar o Like");
+            }          
         }
     }
 }

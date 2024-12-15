@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import speakerService from "../../domain/services/speaker.service";
 import { CreateSpeakerDTO } from "../../domain/dtos/speaker/createSpeaker.dto";
-import { DatabaseError, ConflictError } from "../../infrastructure/utils/CustomErrors";
+import { DatabaseError } from "../../domain/exceptions/data-base-error";
+import { NotFoundError } from "../../domain/exceptions/not-found-error";
+import { ConflictError } from "../../domain/exceptions/conflict-error";
+
 
 class SpeakerController {
     constructor() {
@@ -14,9 +17,13 @@ class SpeakerController {
         } catch (err) {
             console.error("Erro ao listar speakers:", err);
             if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof TypeError) {
                 res.status(500).send({ message: err.message });
             } else {
-                res.status(500).send({ message: "Erro ao tentar listar todos os speakers" });
+                res.status(500).send({ message: "Erro inesperado ao tentar listar todos os palestrantes" });
             }
         }
     }
@@ -33,6 +40,10 @@ class SpeakerController {
             if (err instanceof ConflictError) {
                 res.status(409).send({ message: err.message })
             } else if (err instanceof DatabaseError) {
+                res.status(500).send({ message: err.message });
+            } else if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof TypeError) {
                 res.status(500).send({ message: err.message });
             } else {
                 res.status(500).send({

@@ -2,7 +2,9 @@ import { AppDataSource } from "../../infrastructure/db/data-source";
 import { AreaOfExpertise } from "../models/areaOfExpertise";
 import { CreateAreaOfExpertiseDTO } from "../dtos/areaOfExpertise/CreateAreaOfExpertiseDTO";
 import { AreaOfExpertiseDTO } from "../dtos/areaOfExpertise/AreaOfExpertiseDTO";
-import { DatabaseError, ValidationError, NotFoundError } from"../../infrastructure/utils/CustomErrors";
+import { DatabaseError } from "../../domain/exceptions/data-base-error";
+import { ValidationError } from "../../domain/exceptions/validation-error";
+import { NotFoundError } from "../../domain/exceptions/not-found-error";
 
 class AreaOfExpertiseRepository {
     areaOfExpertiseRepository = AppDataSource.getRepository(AreaOfExpertise);
@@ -19,12 +21,17 @@ class AreaOfExpertiseRepository {
                 idArea: area.idArea,
                 name: area.name,
             }));
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao buscar todas as áreas de especialização:", error);
             if (error instanceof NotFoundError) {
                 throw error;
             }
-            throw new DatabaseError("Falha ao retornar as Áreas de Especialização!");
+            else if (error.nome === "QueryFailedError") {
+                console.error("Erro no banco de dados:", error.message);
+                throw new DatabaseError("Falha ao tentar acessar as Atividades! Por favor, tente novamente.");
+            } else{
+                throw new TypeError("Falha inesperada ao buscar todas as áreas de especialização!");
+            }
         }
     }
 
@@ -32,21 +39,29 @@ class AreaOfExpertiseRepository {
         try {
 
             if (!areaData.name || areaData.name.trim() === "") {
-                throw new ValidationError("O campo 'name' é obrigatório e não pode ser vazio.");
+                throw new ValidationError("O campo 'nome' é obrigatório e não pode ser vazio.");
             }
 
+            if (!/^[a-zA-Z\s\.]+$/.test(areaData.name)) {
+                throw new ValidationError("O campo 'nome' contém caracteres inválidos.");
+            }
+            
             const area = this.areaOfExpertiseRepository.create(areaData);
             const savedArea = await this.areaOfExpertiseRepository.save(area);
             return {
                 idArea: savedArea.idArea,
                 name: savedArea.name,
             };
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao criar área de especialização:", error);
             if (error instanceof ValidationError) {
                 throw error;
+            } else if (error.nome === "QueryFailedError") {
+                throw new DatabaseError("Falha ao criar a Área de Especialização no banco de dados!");
+            } else{
+                throw new TypeError("Falha inesperada ao criar a área de Especialização!");
             }
-            throw new DatabaseError("Falha ao criar a Área de Especialização!");
+            
         }
     }
 }

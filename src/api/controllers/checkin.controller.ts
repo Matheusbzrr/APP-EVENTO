@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
 import checkinService from "../../domain/services/checkin.service";
 import { CreateCheckinDTO } from "../../domain/dtos/checkin/CreateCheckinDTO";
-import {  ValidationError,
-    DatabaseError,
-    NotFoundError,
-    ConflictError,
-    PermissionError } from "../../infrastructure/utils/CustomErrors";
+import { DatabaseError } from "../../domain/exceptions/data-base-error";
+import { NotFoundError } from "../../domain/exceptions/not-found-error";
+import { RecordNotFoundError } from "../../domain/exceptions/record-not-found";
 
 class CheckinController {
     async findAll(req: Request, res: Response): Promise<void> {
@@ -15,10 +13,14 @@ class CheckinController {
         } catch (err: any) {
             console.error("Erro ao listar checkins:", err);
 
-            if (err instanceof DatabaseError) {
-                res.status(500).send({ message: "Erro no banco ao listar checkins." });
+            if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message:err.message });
             } else {
-                res.status(500).send({ message: "Erro interno ao tentar listar todos os checkins." });
+                res.status(500).send({ message: "Erro desconhecido" });
             }
         }
     }
@@ -32,16 +34,12 @@ class CheckinController {
         } catch (err: any) {
             console.error("Erro ao criar checkin:", err);
 
-            if (err instanceof ValidationError) {
-                res.status(400).send({ message: err.message });
-            } else if (err instanceof NotFoundError) {
+            if (err instanceof RecordNotFoundError) {
                 res.status(404).send({ message: err.message });
-            } else if (err instanceof ConflictError) {
-                res.status(409).send({ message: err.message });
-            } else if (err instanceof PermissionError) {
-                res.status(403).send({ message: err.message });
             } else if (err instanceof DatabaseError) {
-                res.status(500).send({ message: "Erro ao salvar no banco de dados." });
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message:err.message });
             } else {
                 res.status(500).send({
                     message: "Erro interno ao criar checkin.",
