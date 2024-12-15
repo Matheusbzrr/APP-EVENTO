@@ -21,6 +21,75 @@ class PostRoutes {
          *     responses:
          *       200:
          *         description: Lista de posts retornada com sucesso.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: array
+         *               items:
+         *                 type: object
+         *                 properties:
+         *                   idPost:
+         *                     type: number
+         *                     description: ID do post.
+         *                     example: 1
+         *                   imageUrl:
+         *                     type: string
+         *                     description: URL da imagem do post.
+         *                     example: "https://example.com/image.jpg"
+         *                   description:
+         *                     type: string
+         *                     description: Descrição do post.
+         *                     example: "Descrição detalhada do post."
+         *                   participant:
+         *                     type: object
+         *                     description: Dados do participante associado ao post.
+         *                     properties:
+         *                       idParticipant:
+         *                         type: number
+         *                         description: ID do participante.
+         *                         example: 1
+         *                       name:
+         *                         type: string
+         *                         description: Nome do participante.
+         *                         example: "John Doe"
+         *                       email:
+         *                         type: string
+         *                         description: E-mail do participante.
+         *                         example: "john.doe@example.com"
+         *                       companyName:
+         *                         type: string
+         *                         description: Nome da empresa do participante.
+         *                         example: "Tech Solutions"
+         *                   likes:
+         *                     type: array
+         *                     description: Lista de likes associados ao post.
+         *                     items:
+         *                       type: object
+         *                       properties:
+         *                         idLike:
+         *                           type: number
+         *                           description: ID do like.
+         *                           example: 10
+         *                         participant:
+         *                           type: object
+         *                           description: Dados do participante que realizou o like.
+         *                           properties:
+         *                             idParticipant:
+         *                               type: number
+         *                               description: ID do participante.
+         *                               example: 2
+         *                             name:
+         *                               type: string
+         *                               description: Nome do participante.
+         *                               example: "Jane Doe"
+         *                             email:
+         *                               type: string
+         *                               description: E-mail do participante.
+         *                               example: "jane.doe@example.com"
+         *                             companyName:
+         *                               type: string
+         *                               description: Empresa do participante.
+         *                               example: "Innovation Inc."
          *       500:
          *         description: Erro ao buscar os posts.
          */
@@ -45,6 +114,75 @@ class PostRoutes {
          *     responses:
          *       200:
          *         description: Posts retornados com sucesso.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: array
+         *               items:
+         *                 type: object
+         *                 properties:
+         *                   idPost:
+         *                     type: number
+         *                     description: ID do post.
+         *                     example: 1
+         *                   imageUrl:
+         *                     type: string
+         *                     description: URL da imagem do post.
+         *                     example: "https://example.com/image.jpg"
+         *                   description:
+         *                     type: string
+         *                     description: Descrição do post.
+         *                     example: "Descrição detalhada do post."
+         *                   participant:
+         *                     type: object
+         *                     description: Dados do participante associado ao post.
+         *                     properties:
+         *                       idParticipant:
+         *                         type: number
+         *                         description: ID do participante.
+         *                         example: 1
+         *                       name:
+         *                         type: string
+         *                         description: Nome do participante.
+         *                         example: "John Doe"
+         *                       email:
+         *                         type: string
+         *                         description: E-mail do participante.
+         *                         example: "john.doe@example.com"
+         *                       companyName:
+         *                         type: string
+         *                         description: Nome da empresa do participante.
+         *                         example: "Tech Solutions"
+         *                   likes:
+         *                     type: array
+         *                     description: Lista de likes associados ao post.
+         *                     items:
+         *                       type: object
+         *                       properties:
+         *                         idLike:
+         *                           type: number
+         *                           description: ID do like.
+         *                           example: 10
+         *                         participant:
+         *                           type: object
+         *                           description: Dados do participante que realizou o like.
+         *                           properties:
+         *                             idParticipant:
+         *                               type: number
+         *                               description: ID do participante.
+         *                               example: 2
+         *                             name:
+         *                               type: string
+         *                               description: Nome do participante.
+         *                               example: "Jane Doe"
+         *                             email:
+         *                               type: string
+         *                               description: E-mail do participante.
+         *                               example: "jane.doe@example.com"
+         *                             companyName:
+         *                               type: string
+         *                               description: Empresa do participante.
+         *                               example: "Innovation Inc."
          *       400:
          *         description: E-mail inválido.
          *       404:

@@ -1,3 +1,4 @@
+import { LikeDTO } from "../like/like.dto";
 import { ParticipantDTO } from "../participant/participant.dto";
 
 export interface PostDTO {
@@ -5,4 +6,6 @@ export interface PostDTO {
     participant: ParticipantDTO;
     imageUrl: string;
     description: string;
+    likes?: LikeDTO[];
+
 }

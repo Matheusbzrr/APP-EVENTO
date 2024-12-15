@@ -12,6 +12,5 @@ export interface ActivityDTO {
     location: string;
     checkins?: CheckinDTO[];
     speaker?: SpeakerDTO[];
-    likes?: LikeDTO[];
     areaOfExpertise: AreaOfExpertiseDTO[];
 }

@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Checkin } from './checkin';
 import { Speaker } from './speaker';
-import { Like } from './like';
 import { AreaOfExpertise } from './areaOfExpertise';
 
 @Entity({ name: 'Activity' })
@@ -26,9 +25,6 @@ export class Activity {
 
     @OneToMany(() => Checkin, checkin => checkin.activity)
     checkins!: Checkin[];
-
-    @OneToMany(() => Like, like => like.activity)
-    likes!: Like[];
 
     @ManyToMany(() => Speaker, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
     @JoinTable()
