@@ -8,7 +8,6 @@ import { DatabaseError } from "../exceptions/data-base-error";
 import { NotFoundError } from "../exceptions/not-found-error";
 import { ValidationError } from "../exceptions/validation-error";
 import { AreaOfExpertise } from "../models/areaOfExpertise";
-import { Like } from "../models/like";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -22,9 +21,6 @@ class ActivityRepository {
                 .leftJoinAndSelect("checkin.participant", "participant")
                 .leftJoinAndSelect("participant.areaOfExpertise", "participantAreaOfExpertise")
                 .leftJoinAndSelect("activity.speaker", "speaker")
-                .leftJoinAndSelect("activity.likes", "like")
-                .leftJoinAndSelect("like.participant", "likeParticipant")
-                .leftJoinAndSelect("likeParticipant.areaOfExpertise", "likeParticipantAreaOfExpertise")
                 .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise")
                 .getMany();
 
@@ -63,22 +59,6 @@ class ActivityRepository {
                     description: speaker.description || "Sem descrição",
                     role: speaker.role || "Sem função",
                     company: speaker.company || "Sem empresa",
-                })) ?? [],
-                likes: activity.likes?.map(like => ({
-                    idLike: like.idLike,
-                    participant: like.participant
-                        ? {
-                              idParticipant: like.participant.idParticipant,
-                              name: like.participant.name ?? "Sem nome",
-                              email: like.participant.email ?? "Sem e-mail",
-                              companyName: like.participant.companyName ?? "Sem empresa",
-                              postPermission: like.participant.postPermission ?? 0,
-                              areaOfExpertise: like.participant.areaOfExpertise?.map(area => ({
-                                  idArea: area.idArea,
-                                  name: area.name,
-                              })) ?? [],
-                          }
-                        : null,
                 })) ?? [],
                 areaOfExpertise: activity.areaOfExpertise?.map(area => ({
                     idArea: area.idArea,
@@ -148,7 +128,6 @@ class ActivityRepository {
                     name: area.name,
                 })) ?? [],
                 checkins: [],
-                likes: [],
             };
         } catch (error: any) {
             if (error instanceof ValidationError) {

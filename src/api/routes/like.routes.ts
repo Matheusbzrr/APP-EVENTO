@@ -34,9 +34,9 @@ class LikeRoutes {
          *                   idParticipant:
          *                     type: number
          *                     description: ID do participante que realizou o like.
-         *                   idActivity:
+         *                   idPost:
          *                     type: number
-         *                     description: ID da atividade que recebeu o like.
+         *                     description: ID do post que recebeu o like.
          *       500:
          *         description: Erro ao tentar listar os likes.
          */
@@ -61,9 +61,9 @@ class LikeRoutes {
          *                 type: number
          *                 description: ID do participante que realizou o like.
          *                 example: 1
-         *               idActivity:
+         *               idPost:
          *                 type: number
-         *                 description: ID da atividade que recebeu o like.
+         *                 description: ID do post que recebeu o like.
          *                 example: 2
          *     responses:
          *       201:
