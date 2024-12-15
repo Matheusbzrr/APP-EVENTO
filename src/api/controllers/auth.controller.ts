@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import authService from "../../domain/services/auth.service";
-import {
-  ValidationError,
-  AuthenticationError,
-  DatabaseError,
-} from "../../infrastructure/utils/CustomErrors"
+import { AuthenticationError } from "../../domain/exceptions/authentiction-error";
+import { ValidationError } from "../../domain/exceptions/validation-error";
+import { DatabaseError } from "../../domain/exceptions/data-base-error";
+
 
 class AuthController {
   static async login(req: Request, res: Response): Promise<void> {
@@ -26,14 +25,12 @@ class AuthController {
     } catch (error: any) {
       console.error("Erro ao realizar login:", error);
 
-      if (error instanceof ValidationError) {
+      if (error instanceof AuthenticationError) {
           res.status(400).json({ error: error.message });
-      } else if (error instanceof AuthenticationError) {
-          res.status(401).json({ error: error.message });
       } else if (error instanceof DatabaseError) {
-          res.status(500).json({ error: "Erro nos dados" });
+          res.status(503).json({ error: "Erro nos dados" });
       } else {
-          res.status(501).json({ error: "Erro no servidor" });
+          res.status(500).json({ error: "Erro no servidor" });
       }
     }
   }

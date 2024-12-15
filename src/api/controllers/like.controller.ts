@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import likeService from "../../domain/services/like.service";
 import { CreateLikeDTO } from "../../domain/dtos/like/createLike.dto";
-import { NotFoundError, ValidationError, DatabaseError} from "../../infrastructure/utils/CustomErrors";
+import { DatabaseError } from "../../domain/exceptions/data-base-error";
+import { NotFoundError } from "../../domain/exceptions/not-found-error";
+import { RecordNotFoundError } from "../../domain/exceptions/record-not-found";
+
 
 class LikeController {
     async findAll(req: Request, res: Response): Promise<void> {
@@ -10,11 +13,14 @@ class LikeController {
             res.json(likes);
         } catch (err: any) {
             console.error("Erro ao listar likes:", err.message || err);
-
-            if (err instanceof DatabaseError) {
-                res.status(500).send({ message: "Erro ao acessar likes." });
+            if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message:err.message });
             } else {
-                res.status(500).send({ message: "Erro inesperado ao listar os likes." });
+                res.status(500).send({ message: "Erro desconhecido" });
             }
         }
     }
@@ -28,12 +34,12 @@ class LikeController {
         } catch (err: any) {
             console.error("Erro ao dar like:", err.message || err);
 
-            if (err instanceof ValidationError) {
-                res.status(400).send({ message: err.message });
-            } else if (err instanceof NotFoundError) {
+            if (err instanceof RecordNotFoundError) {
                 res.status(404).send({ message: err.message });
             } else if (err instanceof DatabaseError) {
-                res.status(500).send({ message: "Erro ao salvar." });
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message: err.message });
             } else {
                 res.status(500).send({ message: "Erro inesperado ao dar o like." });
             }

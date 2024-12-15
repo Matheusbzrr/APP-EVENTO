@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import activityService from "../../domain/services/activity.service";
 import { CreateActivityDTO } from "../../domain/dtos/activity/createActivity.dto";
-import { DatabaseError } from "../../infrastructure/utils/CustomErrors";
+import { DatabaseError } from "../../domain/exceptions/data-base-error";
+import { NotFoundError } from "../../domain/exceptions/not-found-error";
+import { ValidationError } from "../../domain/exceptions/validation-error";
 class ActivityController {
     async findAll(req: Request, res: Response): Promise<void> {
         try {
@@ -11,31 +13,40 @@ class ActivityController {
             console.error("Erro ao listar atividades:", err);
 
             if (err instanceof TypeError){
-                res.status(500).send({ message: err.message})
+                res.status(503).send({ message: err.message})
             }
             else if (err instanceof DatabaseError) {
-                res.status(500).send({ message: err.message });
+                res.status(503).send({ message: err.message });
+            }
+            else if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
             }
             else {
-                res.status(500).send({ message: "Erro ao tentar listar todas as atividades" });
+                res.status(500).send({ message: "Ocorreu um erro inesperado." });
             }
-
         }
     }
 
     async create(req: Request, res: Response): Promise<void> {
         try {
             const activityData: CreateActivityDTO = req.body;
-            console.log("Dados recebidos para criação:", activityData); 
-
+            console.log("Dados recebidos para criação:", activityData);
             const activity = await activityService.createActivity(activityData);
             res.status(201).json(activity);
         } catch (err: any) {
-            console.error("Erro ao criar atividade:", err.message || err); 
-            res.status(500).send({
-                message: "Erro ao criar atividade",
-                error: err.message || "Erro desconhecido"
-            });
+            console.error("Erro ao criar atividade:", err); 
+            if (err instanceof ValidationError) {
+                res.status(400).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message:err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else {
+                res.status(500).json({
+                    message: "Erro ao criar atividade.",
+                    error: err.message || "Erro desconhecido.",
+                });
+            }
         }
     }
     async delete(req: Request, res: Response): Promise<void> {
@@ -45,10 +56,18 @@ class ActivityController {
             res.status(204).send(); // No content response
         } catch (err: any) {
             console.error("Erro ao excluir atividade:", err.message || err);
-            res.status(500).send({
-                message: "Erro ao excluir atividade",
-                error: err.message || "Erro desconhecido"
-            });
+            if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError){
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message:err.message });
+            } else {
+                res.status(500).json({
+                    message: "Erro ao excluir atividade.",
+                    error: err.message || "Erro desconhecido.",
+                });
+            }
         }
     }
 }

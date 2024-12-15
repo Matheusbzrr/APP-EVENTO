@@ -2,8 +2,12 @@
 import { AppDataSource } from "../../infrastructure/db/data-source";
 import { CreateParticipantDTO } from "../dtos/participant/CreateParticipantDTO";
 import { ParticipantDTO } from "../dtos/participant/participant.dto";
+import { ConflictError } from "../exceptions/conflict-error";
+import { DatabaseError } from "../exceptions/data-base-error";
+import { NotFoundError } from "../exceptions/not-found-error";
+import { ValidationError } from "../exceptions/validation-error";
 import { Participant } from "../models/participant";
-import { NotFoundError, ValidationError, DatabaseError} from "../../infrastructure/utils/CustomErrors";
+
 
 class ParticipantRepository {
     participantRepository = AppDataSource.getRepository(Participant);
@@ -14,6 +18,12 @@ class ParticipantRepository {
             if (!email) {
                 throw new ValidationError("O e-mail é obrigatório.");
             } 
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (!emailRegex.test(email)) {
+                throw new ValidationError("O e-mail fornecido não tem um formato válido.");
+            }
 
             const participant = await this.participantRepository.findOne({
                 where: { email },
@@ -31,16 +41,26 @@ class ParticipantRepository {
                 postPermission: participant.postPermission,
             };
         } catch (error: any) {
-            if (!(error instanceof NotFoundError || error instanceof ValidationError)) {
-                console.error("Erro ao buscar participante por e-mail:", error);
-                throw new DatabaseError("Erro ao enviar os dados");
+            if (error instanceof NotFoundError) {
+                throw error;
+            } else if (error instanceof ValidationError) {
+                throw error;
+            } else if (error.name === "QueryFailedError") {
+                 throw new DatabaseError("Falha ao criar o Participante no banco de dados!");
+            } else {
+                throw new TypeError("Falha inesperada ao buscar todos os Participantes!");
             }
-            throw error;
+            
         }
     }
     async findAll(): Promise<CreateParticipantDTO[]> {
         try {
             const participants = await this.participantRepository.find();
+
+            if (!participants) {
+                throw new NotFoundError("Nenhum participante encontrado.");
+            }
+
             return participants.map(participant => ({
                 idParticipant: participant.idParticipant,
                 name: participant.name,
@@ -48,19 +68,35 @@ class ParticipantRepository {
                 companyName: participant.companyName,
                 postPermission: participant.postPermission,
             }));
-        } catch (error) {
-            console.error("Erro ao buscar todos os participantes:", error);
-            throw new DatabaseError("Erro ao retornar os Participantes!");
+        } catch (error: any) {
+            console.error("Erro ao criar participante:", error);
+            if (error instanceof NotFoundError) {
+                throw error;
+            } else if (error.name === "QueryFailedError") {
+                 throw new DatabaseError("Falha ao buscar o Participante no banco de dados!");
+            } else {
+                throw new TypeError("Falha inesperada ao buscar todos os Participantes!");
+            }
+            
         }
     }
 
     async create(participantData: CreateParticipantDTO): Promise<ParticipantDTO> {
         try {
-
             if (!participantData.email || !participantData.name) {
                 throw new ValidationError("Nome e e-mail são obrigatórios.");
             }
 
+            const participantExists = await this.participantRepository.findOneBy({ email: participantData.email})
+            if (participantExists) {
+                throw new ConflictError("Já existe um participante com esse e-mail.");
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(participantData.email)) {
+                throw new ValidationError("O e-mail fornecido não tem um formato válido.");
+            }
+            
             const participant = this.participantRepository.create(participantData);
             const savedParticipant = await this.participantRepository.save(participant);
             return {
@@ -72,7 +108,15 @@ class ParticipantRepository {
             };
         } catch (error: any) {
             console.error("Erro ao criar participante:", error);
-            throw new DatabaseError("Falha ao salvar o Participante no banco de dados!");
+            if (error instanceof ConflictError) {
+                throw error;
+            } else if (error instanceof ValidationError) {
+                throw error;
+            } else if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Falha ao criar o Participante no banco de dados!");
+            } else {
+                throw new TypeError("Falha inesperada ao criar o participante!");
+            }
         }
     }
 }
