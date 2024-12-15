@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Checkin } from './checkin';
 import { Post } from './post';
 import { AreaOfExpertise } from './areaOfExpertise';
-import { Like } from './like'; 
+import { Like } from './like';
 
 @Entity({ name: 'Participant' })
 export class Participant {
@@ -28,17 +28,13 @@ export class Participant {
     posts!: Post[];
 
     @ManyToMany(() => AreaOfExpertise, areaofexpertise => areaofexpertise.participant, { onUpdate: 'CASCADE' })
-    areaofexpertise?: AreaOfExpertise[];
+    @JoinTable()
+    areaOfExpertise?: AreaOfExpertise[];
 
-    @OneToMany(() => Like, like => like.participant) 
+    @OneToMany(() => Like, like => like.participant)
     likes!: Like[];
 
-    constructor(
-        name: string,
-        email: string,
-        companyName?: string,
-        postPermission?: number
-    ) {
+    constructor(name: string, email: string, companyName?: string, postPermission?: number) {
         this.name = name;
         this.email = email;
         this.companyName = companyName;

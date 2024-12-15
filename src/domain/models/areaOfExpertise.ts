@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 import { Participant } from './participant';
+
 @Entity({ name: 'AreaOfExpertise' })
 export class AreaOfExpertise {
     @PrimaryGeneratedColumn({ type: 'int' })
@@ -8,8 +9,10 @@ export class AreaOfExpertise {
     @Column({ length: 100 })
     name!: string;
 
-    @ManyToMany(() => Participant, {onUpdate: 'CASCADE', onDelete: 'CASCADE'})
-    @JoinTable()
+    @ManyToMany(() => Participant, participant => participant.areaOfExpertise, {
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+    })
     participant?: Participant[];
 
     constructor(name: string) {

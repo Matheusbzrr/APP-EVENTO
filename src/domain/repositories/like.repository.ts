@@ -6,8 +6,7 @@ import { NotFoundError } from "../exceptions/not-found-error";
 import { RecordNotFoundError } from "../exceptions/record-not-found";
 import { Like } from "../models/like";
 import { Participant } from "../models/participant";
-
-
+import { AreaOfExpertise } from "../models/areaOfExpertise";
 
 class LikeRepository {
     likeRepository = AppDataSource.getRepository(Like);
@@ -18,19 +17,27 @@ class LikeRepository {
                 relations: ["participant", "activity"],
             });
 
-            if (!likes){
-                throw new NotFoundError("Like não encontrado")
+            if (!likes || likes.length === 0) {
+                throw new NotFoundError("Like não encontrado");
             }
 
             return likes.map(like => ({
                 idLike: like.idLike,
-                participant: like.participant ? {
-                    idParticipant: like.participant.idParticipant,
-                    name: like.participant.name ?? "Sem nome",
-                    email: like.participant.email ?? "Sem e-mail",
-                    companyName: like.participant.companyName ?? "Sem empresa",
-                    postPermission: like.participant.postPermission ?? 0,
-                } : null,
+                participant: like.participant
+                    ? {
+                          idParticipant: like.participant.idParticipant,
+                          name: like.participant.name ?? "Sem nome",
+                          email: like.participant.email ?? "Sem e-mail",
+                          companyName: like.participant.companyName ?? "Sem empresa",
+                          postPermission: like.participant.postPermission ?? 0,
+                          AreaOfExpertise: like.participant.areaOfExpertise
+                              ? like.participant.areaOfExpertise.map((area: AreaOfExpertise) => ({
+                                    idArea: area.idArea,
+                                    name: area.name,
+                                }))
+                              : [],
+                      }
+                    : null,
                 idActivity: like.activity?.idActivity ?? 0,
             })) as LikeDTO[];
         } catch (error: any) {
@@ -38,9 +45,9 @@ class LikeRepository {
             if (error instanceof NotFoundError) {
                 throw error;
             } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao criar o Checkin no banco de dados!");
+                throw new DatabaseError("Falha ao buscar os Likes no banco de dados!");
             } else {
-                throw new TypeError("Falha ao buscar todos os likes!");
+                throw new TypeError("Erro ao buscar todos os likes!");
             }
         }
     }
@@ -49,10 +56,14 @@ class LikeRepository {
         try {
             const participant = await AppDataSource.getRepository(Participant).findOne({
                 where: { idParticipant: likeData.idParticipant },
+                relations: ["areaOfExpertise"],
             });
 
             if (!participant) {
-                throw new RecordNotFoundError("erro ao tentar achar likes do participante de id:", likeData.idParticipant.toString());
+                throw new RecordNotFoundError(
+                    "Erro ao tentar achar o participante de ID:",
+                    likeData.idParticipant.toString()
+                );
             }
 
             const like = this.likeRepository.create({
@@ -64,13 +75,21 @@ class LikeRepository {
 
             return {
                 idLike: savedLike.idLike,
-                participant: savedLike.participant ? {
-                    idParticipant: savedLike.participant.idParticipant,
-                    name: savedLike.participant.name ?? "Sem nome",
-                    email: savedLike.participant.email ?? "Sem e-mail",
-                    companyName: savedLike.participant.companyName ?? "Sem empresa",
-                    postPermission: savedLike.participant.postPermission ?? 0,
-                } : null,
+                participant: savedLike.participant
+                    ? {
+                          idParticipant: savedLike.participant.idParticipant,
+                          name: savedLike.participant.name ?? "Sem nome",
+                          email: savedLike.participant.email ?? "Sem e-mail",
+                          companyName: savedLike.participant.companyName ?? "Sem empresa",
+                          postPermission: savedLike.participant.postPermission ?? 0,
+                          AreaOfExpertise: savedLike.participant.areaOfExpertise
+                              ? savedLike.participant.areaOfExpertise.map((area: AreaOfExpertise) => ({
+                                    idArea: area.idArea,
+                                    name: area.name,
+                                }))
+                              : [],
+                      }
+                    : null,
                 idActivity: savedLike.activity?.idActivity ?? 0,
             };
         } catch (error: any) {
@@ -79,9 +98,9 @@ class LikeRepository {
                 throw error;
             } else if (error.name === "QueryFailedError") {
                 throw new DatabaseError("Erro ao guardar o Like no banco de dados.");
-            } else{
+            } else {
                 throw new TypeError("Erro inesperado ao guardar o Like");
-            }          
+            }
         }
     }
 }
