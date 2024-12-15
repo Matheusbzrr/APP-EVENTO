@@ -74,6 +74,49 @@ class LikeRoutes {
          *         description: Erro ao tentar criar o like.
          */
         this.router.post("/likes", this.controller.create);
+
+        /**
+         * @openapi
+         * /likes/post/{idPost}:
+         *   get:
+         *     tags:
+         *       - Likes
+         *     summary: Contar a quantidade de likes por postagem
+         *     description: Endpoint para contar o número de likes que uma postagem recebeu.
+         *     parameters:
+         *       - in: path
+         *         name: idPost
+         *         required: true
+         *         schema:
+         *           type: number
+         *         description: ID da postagem para contar os likes.
+         *         example: 1
+         *     responses:
+         *       200:
+         *         description: Contagem de likes da postagem realizada com sucesso.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: object
+         *               properties:
+         *                 postId:
+         *                   type: number
+         *                   description: ID da postagem.
+         *                   example: 1
+         *                 likeCount:
+         *                   type: number
+         *                   description: Quantidade de likes da postagem.
+         *                   example: 5
+         *       400:
+         *         description: O ID da postagem é inválido.
+         *       404:
+         *         description: Postagem não encontrada.
+         *       500:
+         *         description: Erro ao tentar contar os likes da postagem.
+         */
+        this.router.get("/likes/post/:idPost", this.controller.countLikesPerPost);
+
+
     }
 }
 
