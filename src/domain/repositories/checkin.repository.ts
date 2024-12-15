@@ -13,14 +13,17 @@ class CheckinRepository {
 
     async findAll(): Promise<CheckinDTO[]> {
         try {
-            const checkins = await this.checkinRepository.find({
-                relations: ["participant", "activity"],
-            });
-
-            if (!checkins) {
+            const checkins = await this.checkinRepository
+                .createQueryBuilder("checkin")
+                .leftJoinAndSelect("checkin.participant", "participant")
+                .leftJoinAndSelect("participant.areaOfExpertise", "areaOfExpertise") // Inclui área de expertise do participante
+                .leftJoinAndSelect("checkin.activity", "activity")
+                .getMany();
+    
+            if (!checkins.length) {
                 throw new NotFoundError("Nenhum checkin encontrado.");
             }
-
+    
             return checkins.map(checkin => ({
                 idCheckin: checkin.idCheckin,
                 participant: checkin.participant
@@ -46,9 +49,9 @@ class CheckinRepository {
             if (error instanceof NotFoundError) {
                 throw error;
             } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao criar o Checkin no banco de dados!");
+                throw new DatabaseError("Falha ao buscar os Checkins no banco de dados!");
             } else {
-                throw new TypeError("Falha inesperada ao realizar a operação!");
+                throw new TypeError("Falha inesperada ao buscar os Checkins!");
             }
         }
     }
