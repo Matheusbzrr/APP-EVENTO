@@ -44,6 +44,15 @@ class ParticipantRoutes {
          *                   type: string
          *                 postPermission:
          *                   type: number
+         *                 AreaOfExpertise:
+         *                   type: array
+         *                   items:
+         *                     type: object
+         *                     properties:
+         *                       idArea:
+         *                         type: number
+         *                       name:
+         *                         type: string
          *       404:
          *         description: Participante não encontrado.
          *       500:
@@ -79,6 +88,15 @@ class ParticipantRoutes {
          *                     type: string
          *                   postPermission:
          *                     type: number
+         *                   AreaOfExpertise:
+         *                     type: array
+         *                     items:
+         *                       type: object
+         *                       properties:
+         *                         idArea:
+         *                           type: number
+         *                         name:
+         *                           type: string
          *       500:
          *         description: Erro ao tentar listar participantes.
          */
@@ -117,6 +135,12 @@ class ParticipantRoutes {
          *                 description: Permissão para postar (opcional)
          *                 nullable: true
          *                 example: 1
+         *               idArea:
+         *                 type: array
+         *                 description: IDs das áreas de expertise do participante
+         *                 items:
+         *                   type: number
+         *                 example: [1, 2, 3]
          *     responses:
          *       201:
          *         description: Participante criado com sucesso.

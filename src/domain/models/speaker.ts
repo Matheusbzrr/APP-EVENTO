@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 import { Activity } from './activity';
 
-
 @Entity({ name: 'Speaker' })
 export class Speaker {
     @PrimaryGeneratedColumn({ type: 'int' })
@@ -10,10 +9,22 @@ export class Speaker {
     @Column({ length: 200 })
     name!: string;
 
-    constructor(name: string) {
-        this.name = name;
-    }
+    @Column({ type: 'text', nullable: true }) 
+    description?: string;
 
-    @ManyToMany(() => Activity, activity => activity.speaker, {onUpdate: 'CASCADE'})
+    @Column({ length: 100, nullable: true }) 
+    role?: string;
+
+    @Column({ length: 200, nullable: true }) 
+    company?: string;
+
+    @ManyToMany(() => Activity, activity => activity.speaker, { onUpdate: 'CASCADE' })
     activity?: Activity[];
+
+    constructor(name: string, description?: string, role?: string, company?: string) {
+        this.name = name;
+        this.description = description;
+        this.role = role;
+        this.company = company;
+    }
 }

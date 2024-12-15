@@ -19,16 +19,16 @@ class ActivityRepository {
                 .createQueryBuilder('activity')
                 .leftJoinAndSelect('activity.checkins', 'checkin')
                 .leftJoinAndSelect('checkin.participant', 'participant')
+                .leftJoinAndSelect('participant.areaOfExpertise', 'areaOfExpertise')
                 .leftJoinAndSelect('activity.speaker', 'speaker')
                 .leftJoinAndSelect('activity.likes', 'like')
                 .leftJoinAndSelect('like.participant', 'likeParticipant')
+                .leftJoinAndSelect('likeParticipant.areaOfExpertise', 'likeParticipantAreaOfExpertise')
                 .getMany();
 
-                
-                if (!activities) {
-                    console.error("Nenhuma atividade encontrada no banco de dados.");
-                    throw new NotFoundError("Nenhuma atividade disponível no momento.");
-                }
+            if (!activities.length) {
+                throw new NotFoundError("Nenhuma atividade disponível no momento.");
+            }
 
             return activities.map(activity => ({
                 idActivity: activity.idActivity,
@@ -45,6 +45,10 @@ class ActivityRepository {
                         email: checkin.participant.email ?? "Sem e-mail",
                         companyName: checkin.participant.companyName ?? "Sem empresa",
                         postPermission: checkin.participant.postPermission ?? 0,
+                        areaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
+                            idArea: area.idArea,
+                            name: area.name,
+                        })) ?? [],
                     } : null,
                     idActivity: checkin.activity?.idActivity ?? 0,
                     checkinDateTime: checkin.checkinDateTime,
@@ -52,7 +56,10 @@ class ActivityRepository {
                 speaker: activity.speaker?.map(speaker => ({
                     idSpeaker: speaker.idSpeaker,
                     name: speaker.name ?? "Sem nome",
-                })),
+                    description: speaker.description || "Sem descrição",
+                    role: speaker.role || "Sem função",
+                    company: speaker.company || "Sem empresa",
+                })) ?? [],
                 likes: activity.likes?.map(like => ({
                     idLike: like.idLike,
                     participant: like.participant ? {
@@ -61,22 +68,22 @@ class ActivityRepository {
                         email: like.participant.email ?? "Sem e-mail",
                         companyName: like.participant.companyName ?? "Sem empresa",
                         postPermission: like.participant.postPermission ?? 0,
+                        areaOfExpertise: like.participant.areaOfExpertise?.map(area => ({
+                            idArea: area.idArea,
+                            name: area.name,
+                        })) ?? [],
                     } : null,
                     idActivity: like.activity?.idActivity ?? 0,
                 })) as LikeDTO[],
             }));
-        } catch (error:any) {
+        } catch (error: any) {
             if (error instanceof TypeError) {
-                console.error("Erro de tipo:", error.message);
                 throw new TypeError("Erro interno no servidor. Por favor, tente novamente mais tarde.");
-            } else if (error.nome === "QueryFailedError") {
-                console.error("Erro no banco de dados:", error.message);
+            } else if (error.name === "QueryFailedError") {
                 throw new DatabaseError("Falha ao tentar acessar as Atividades! Por favor, tente novamente.");
             } else if (error instanceof NotFoundError) {
-                console.error("Erro: Nenhuma atividade encontrada.", error.message);
                 throw error;
             } else {
-                console.error("Erro inesperado:", error);
                 throw new Error("Erro desconhecido. Por favor, entre em contato com o suporte.");
             }
         }
@@ -84,12 +91,10 @@ class ActivityRepository {
 
     async create(activityData: CreateActivityDTO): Promise<ActivityDTO> {
         try {
-
             if (!activityData.title || !activityData.date || !activityData.time || !activityData.location || !activityData.speakerId) {
                 throw new ValidationError("Dados obrigatórios faltando: título, data, hora, localização ou palestrantes.");
             }
-    
-            
+
             if (isNaN(new Date(activityData.date).getTime())) {
                 throw new ValidationError("O campo 'data' deve ser uma data válida.");
             }
@@ -97,11 +102,10 @@ class ActivityRepository {
             if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(activityData.time)) {
                 throw new ValidationError("O campo 'hora' deve ser um horário válido no formato HH:mm.");
             }
-    
-            const formattedTime = activityData.time;
-            const activity = this.activityRepository.create({ 
-                ...activityData, 
-                time: formattedTime 
+
+            const activity = this.activityRepository.create({
+                ...activityData,
+                time: activityData.time,
             });
 
             if (activityData.speakerId) {
@@ -121,24 +125,24 @@ class ActivityRepository {
                 speaker: savedActivity.speaker?.map(speaker => ({
                     idSpeaker: speaker.idSpeaker,
                     name: speaker.name,
-                })),
+                    description: speaker.description || "Sem descrição",
+                    role: speaker.role || "Sem função",
+                    company: speaker.company || "Sem empresa",
+                })) ?? [],
                 checkins: [],
-                likes: [], // Novo campo likes adicionado
+                likes: [],
             };
-
         } catch (error: any) {
-            console.error("Erro ao criar atividade:", error);
             if (error instanceof ValidationError) {
                 throw error;
-            } else if (error.nome === "QueryFailedError") {
+            } else if (error.name === "QueryFailedError") {
                 throw new DatabaseError("Falha ao criar a Atividade no banco de dados!");
-            } else{
+            } else {
                 throw new TypeError("Falha inesperada ao criar a atividade!");
             }
-    
-            
         }
     }
+
     async delete(id: number): Promise<void> {
         try {
             const result = await this.activityRepository.delete(id);
@@ -146,13 +150,12 @@ class ActivityRepository {
                 throw new NotFoundError("Atividade não encontrada ou já excluída.");
             }
         } catch (error: any) {
-            console.error("Erro ao excluir atividade:", error);
             if (error instanceof NotFoundError) {
                 throw error;
-            } else if (error.nome === "QueryFailedError") {
-                throw new DatabaseError("Falha ao criar a Atividade no banco de dados!");
-            } else{
-                throw new TypeError("Falha inesperada ao criar a atividade!");
+            } else if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Falha ao deletar a Atividade no banco de dados!");
+            } else {
+                throw new TypeError("Falha inesperada ao deletar a atividade!");
             }
         }
     }
