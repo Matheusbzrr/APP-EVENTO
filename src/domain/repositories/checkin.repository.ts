@@ -16,7 +16,7 @@ class CheckinRepository {
             const checkins = await this.checkinRepository
                 .createQueryBuilder("checkin")
                 .leftJoinAndSelect("checkin.participant", "participant")
-                .leftJoinAndSelect("participant.areaOfExpertise", "areaOfExpertise") // Inclui área de expertise do participante
+                .leftJoinAndSelect("participant.areaOfExpertise", "areaOfExpertise") 
                 .leftJoinAndSelect("checkin.activity", "activity")
                 .getMany();
     
