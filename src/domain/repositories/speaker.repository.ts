@@ -6,30 +6,32 @@ import { DatabaseError } from "../exceptions/data-base-error";
 import { NotFoundError } from "../exceptions/not-found-error";
 import { Speaker } from "../models/speaker";
 
-
 class SpeakerRepository {
     speakerRepository = AppDataSource.getRepository(Speaker);
 
     async findAll(): Promise<SpeakerDTO[]> {
         try {
             const speakers = await this.speakerRepository.find();
-            if (!speakers){
+            if (!speakers.length) {
                 throw new NotFoundError("Nenhum palestrante encontrado!");
             }
-            
+
             return speakers.map(speaker => ({
                 idSpeaker: speaker.idSpeaker,
                 name: speaker.name,
+                description: speaker.description || "Sem descrição",
+                role: speaker.role || "Sem função",
+                company: speaker.company || "Sem empresa",
             }));
         } catch (error: any) {
-            console.error("Erro ao buscar palestrante:", error);
+            console.error("Erro ao buscar palestrantes:", error);
             if (error instanceof NotFoundError) {
                 throw error;
             } else if (error.name === "QueryFailedError") {
                 throw new DatabaseError("Falha ao buscar os palestrantes no banco de dados!");
             } else {
                 throw new TypeError("Falha inesperada ao buscar todos os palestrantes!");
-            }      
+            }
         }
     }
 
@@ -37,32 +39,46 @@ class SpeakerRepository {
         try {
             const existingSpeaker = await this.speakerRepository.findOneBy({ name: speakerData.name });
             if (existingSpeaker) {
-                throw new ConflictError("Palestrante com este nome já existe!"); 
-            }
-
-            if (!speakerData.name) {
-                throw new NotFoundError("Nome do palestrante não pode ser vazio!");
+                throw new ConflictError("Palestrante com este nome já existe!");
             }
 
             const speaker = this.speakerRepository.create(speakerData);
 
-            
             const savedSpeaker = await this.speakerRepository.save(speaker);
             return {
                 idSpeaker: savedSpeaker.idSpeaker,
                 name: savedSpeaker.name,
+                description: savedSpeaker.description || "Sem descrição",
+                role: savedSpeaker.role || "Sem função",
+                company: savedSpeaker.company || "Sem empresa",
             };
         } catch (error: any) {
             console.error("Erro ao criar palestrante:", error);
-            if (error instanceof NotFoundError) {
-                throw error;
-            } else if (error instanceof ConflictError) {
+            if (error instanceof ConflictError) {
                 throw error;
             } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao criar os palestrantes no banco de dados!");
+                throw new DatabaseError("Falha ao criar o palestrante no banco de dados!");
             } else {
-                throw new TypeError("Falha inesperada ao criar todos os palestrantes!");
-            }      
+                throw new TypeError("Falha inesperada ao criar o palestrante!");
+            }
+        }
+    }
+
+    async delete(idSpeaker: number): Promise<void> {
+        try {
+            const result = await this.speakerRepository.delete(idSpeaker);
+            if (result.affected === 0) {
+                throw new NotFoundError("Palestrante não encontrado ou já foi excluído!");
+            }
+        } catch (error: any) {
+            console.error("Erro ao deletar palestrante:", error);
+            if (error instanceof NotFoundError) {
+                throw error;
+            } else if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Falha ao deletar o palestrante no banco de dados!");
+            } else {
+                throw new TypeError("Falha inesperada ao deletar o palestrante!");
+            }
         }
     }
 }

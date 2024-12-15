@@ -28,12 +28,21 @@ class SpeakerRoutes {
          *               items:
          *                 type: object
          *                 properties:
-         *                   id:
+         *                   idSpeaker:
          *                     type: number
          *                     description: ID único do speaker.
          *                   name:
          *                     type: string
          *                     description: Nome do speaker.
+         *                   description:
+         *                     type: string
+         *                     description: Descrição do speaker.
+         *                   role:
+         *                     type: string
+         *                     description: Função ou cargo do speaker.
+         *                   company:
+         *                     type: string
+         *                     description: Empresa associada ao speaker.
          *       500:
          *         description: Erro ao tentar listar os speakers.
          */
@@ -58,6 +67,18 @@ class SpeakerRoutes {
          *                 type: string
          *                 description: Nome do speaker.
          *                 example: Maria Silva
+         *               description:
+         *                 type: string
+         *                 description: Descrição do speaker.
+         *                 example: Palestrante experiente em tecnologia.
+         *               role:
+         *                 type: string
+         *                 description: Função ou cargo do speaker.
+         *                 example: CTO
+         *               company:
+         *                 type: string
+         *                 description: Empresa associada ao speaker.
+         *                 example: Tech Solutions
          *     responses:
          *       201:
          *         description: Speaker criado com sucesso.
@@ -67,6 +88,31 @@ class SpeakerRoutes {
          *         description: Erro ao tentar criar o speaker.
          */
         this.router.post("/speakers", this.controller.create);
+
+        /**
+         * @openapi
+         * /speakers/{idSpeaker}:
+         *   delete:
+         *     tags:
+         *       - Speakers
+         *     summary: Deletar um speaker pelo ID
+         *     description: Remove um speaker do sistema com base no ID fornecido.
+         *     parameters:
+         *       - in: path
+         *         name: idSpeaker
+         *         required: true
+         *         schema:
+         *           type: number
+         *         description: ID único do speaker a ser deletado.
+         *     responses:
+         *       200:
+         *         description: Speaker deletado com sucesso.
+         *       404:
+         *         description: Speaker não encontrado.
+         *       500:
+         *         description: Erro ao tentar deletar o speaker.
+         */
+        this.router.delete("/speakers/:idSpeaker", this.controller.delete);
     }
 }
 

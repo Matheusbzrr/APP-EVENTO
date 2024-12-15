@@ -19,11 +19,11 @@ class ActivityRepository {
                 .createQueryBuilder('activity')
                 .leftJoinAndSelect('activity.checkins', 'checkin')
                 .leftJoinAndSelect('checkin.participant', 'participant')
-                .leftJoinAndSelect('participant.areaOfExpertise', 'areaOfExpertise') // Inclui relação com área de expertise
+                .leftJoinAndSelect('participant.areaOfExpertise', 'areaOfExpertise')
                 .leftJoinAndSelect('activity.speaker', 'speaker')
                 .leftJoinAndSelect('activity.likes', 'like')
                 .leftJoinAndSelect('like.participant', 'likeParticipant')
-                .leftJoinAndSelect('likeParticipant.areaOfExpertise', 'likeParticipantAreaOfExpertise') // Inclui área de expertise do participante que curtiu
+                .leftJoinAndSelect('likeParticipant.areaOfExpertise', 'likeParticipantAreaOfExpertise')
                 .getMany();
 
             if (!activities.length) {
@@ -56,7 +56,10 @@ class ActivityRepository {
                 speaker: activity.speaker?.map(speaker => ({
                     idSpeaker: speaker.idSpeaker,
                     name: speaker.name ?? "Sem nome",
-                })),
+                    description: speaker.description || "Sem descrição",
+                    role: speaker.role || "Sem função",
+                    company: speaker.company || "Sem empresa",
+                })) ?? [],
                 likes: activity.likes?.map(like => ({
                     idLike: like.idLike,
                     participant: like.participant ? {
@@ -100,10 +103,9 @@ class ActivityRepository {
                 throw new ValidationError("O campo 'hora' deve ser um horário válido no formato HH:mm.");
             }
 
-            const formattedTime = activityData.time;
             const activity = this.activityRepository.create({
                 ...activityData,
-                time: formattedTime,
+                time: activityData.time,
             });
 
             if (activityData.speakerId) {
@@ -123,7 +125,10 @@ class ActivityRepository {
                 speaker: savedActivity.speaker?.map(speaker => ({
                     idSpeaker: speaker.idSpeaker,
                     name: speaker.name,
-                })),
+                    description: speaker.description || "Sem descrição",
+                    role: speaker.role || "Sem função",
+                    company: speaker.company || "Sem empresa",
+                })) ?? [],
                 checkins: [],
                 likes: [],
             };
@@ -148,9 +153,9 @@ class ActivityRepository {
             if (error instanceof NotFoundError) {
                 throw error;
             } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao criar a Atividade no banco de dados!");
+                throw new DatabaseError("Falha ao deletar a Atividade no banco de dados!");
             } else {
-                throw new TypeError("Falha inesperada ao criar a atividade!");
+                throw new TypeError("Falha inesperada ao deletar a atividade!");
             }
         }
     }
