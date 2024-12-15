@@ -4,5 +4,6 @@ export interface CreateActivityDTO {
     time: string;
     date: Date;
     location: string;
-    speakerId?: number[]; 
+    speakerId?: number[];
+    idArea: number[];
 }

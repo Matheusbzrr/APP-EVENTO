@@ -1,6 +1,7 @@
 import { CheckinDTO } from "../checkin/checkin.dto";
 import { SpeakerDTO } from "../speaker/speaker.dto";
 import { LikeDTO } from "../like/like.dto";
+import { AreaOfExpertiseDTO } from "../areaOfExpertise/AreaOfExpertiseDTO";
 
 export interface ActivityDTO {
     idActivity: number;
@@ -11,5 +12,6 @@ export interface ActivityDTO {
     location: string;
     checkins?: CheckinDTO[];
     speaker?: SpeakerDTO[];
-    likes?: LikeDTO[]; 
+    likes?: LikeDTO[];
+    areaOfExpertise: AreaOfExpertiseDTO[];
 }

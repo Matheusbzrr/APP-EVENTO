@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTabl
 import { Checkin } from './checkin';
 import { Speaker } from './speaker';
 import { Like } from './like';
+import { AreaOfExpertise } from './areaOfExpertise';
 
 @Entity({ name: 'Activity' })
 export class Activity {
@@ -32,6 +33,10 @@ export class Activity {
     @ManyToMany(() => Speaker, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
     @JoinTable()
     speaker?: Speaker[];
+
+    @ManyToMany(() => AreaOfExpertise, areaOfExpertise => areaOfExpertise.activity, { onUpdate: 'CASCADE' })
+    @JoinTable()
+    areaOfExpertise?: AreaOfExpertise[];
 
     constructor(title: string, description: string, time: string, location: string) {
         this.title = title;

@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 import { Participant } from './participant';
+import { Activity } from './activity';
 
 @Entity({ name: 'AreaOfExpertise' })
 export class AreaOfExpertise {
@@ -14,6 +15,12 @@ export class AreaOfExpertise {
         onDelete: 'CASCADE',
     })
     participant?: Participant[];
+
+    @ManyToMany(() => Activity, activity => activity.areaOfExpertise, {
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+    })
+    activity?: Activity[];
 
     constructor(name: string) {
         this.name = name;

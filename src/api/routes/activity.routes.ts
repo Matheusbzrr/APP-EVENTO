@@ -74,6 +74,20 @@ class ActivityRoutes {
      *                           type: string
      *                           description: Empresa do palestrante.
      *                           example: Tech Solutions
+     *                   areaOfExpertise:
+     *                     type: array
+     *                     description: Lista de áreas de especialização associadas à atividade.
+     *                     items:
+     *                       type: object
+     *                       properties:
+     *                         idArea:
+     *                           type: number
+     *                           description: ID da área de especialização.
+     *                           example: 1
+     *                         name:
+     *                           type: string
+     *                           description: Nome da área de especialização.
+     *                           example: Inteligência Artificial
      *       500:
      *         description: Erro ao tentar listar as atividades.
      */
@@ -122,6 +136,12 @@ class ActivityRoutes {
      *                   type: number
      *                 description: Lista de IDs dos palestrantes associados à atividade.
      *                 example: [1, 2]
+     *               idArea:
+     *                 type: array
+     *                 items:
+     *                   type: number
+     *                 description: Lista de IDs das áreas de especialização associadas à atividade.
+     *                 example: [3, 4]
      *     responses:
      *       201:
      *         description: Atividade criada com sucesso.

@@ -8,6 +8,7 @@ import { LikeDTO } from "../dtos/like/like.dto";
 import { DatabaseError } from "../exceptions/data-base-error";
 import { NotFoundError } from "../exceptions/not-found-error";
 import { ValidationError } from "../exceptions/validation-error";
+import { AreaOfExpertise } from "../models/areaOfExpertise";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -19,17 +20,18 @@ class ActivityRepository {
                 .createQueryBuilder('activity')
                 .leftJoinAndSelect('activity.checkins', 'checkin')
                 .leftJoinAndSelect('checkin.participant', 'participant')
-                .leftJoinAndSelect('participant.areaOfExpertise', 'areaOfExpertise')
+                .leftJoinAndSelect('participant.areaOfExpertise', 'participantAreaOfExpertise')
                 .leftJoinAndSelect('activity.speaker', 'speaker')
                 .leftJoinAndSelect('activity.likes', 'like')
                 .leftJoinAndSelect('like.participant', 'likeParticipant')
                 .leftJoinAndSelect('likeParticipant.areaOfExpertise', 'likeParticipantAreaOfExpertise')
+                .leftJoinAndSelect('activity.areaOfExpertise', 'activityAreaOfExpertise') // Inclui a relação com áreas de expertise
                 .getMany();
-
+    
             if (!activities.length) {
                 throw new NotFoundError("Nenhuma atividade disponível no momento.");
             }
-
+    
             return activities.map(activity => ({
                 idActivity: activity.idActivity,
                 title: activity.title ?? "Sem título",
@@ -75,6 +77,10 @@ class ActivityRepository {
                     } : null,
                     idActivity: like.activity?.idActivity ?? 0,
                 })) as LikeDTO[],
+                areaOfExpertise: activity.areaOfExpertise?.map(area => ({
+                    idArea: area.idArea,
+                    name: area.name,
+                })) ?? [],
             }));
         } catch (error: any) {
             if (error instanceof TypeError) {
@@ -88,33 +94,37 @@ class ActivityRepository {
             }
         }
     }
-
     async create(activityData: CreateActivityDTO): Promise<ActivityDTO> {
         try {
-            if (!activityData.title || !activityData.date || !activityData.time || !activityData.location || !activityData.speakerId) {
-                throw new ValidationError("Dados obrigatórios faltando: título, data, hora, localização ou palestrantes.");
+            if (!activityData.title || !activityData.date || !activityData.time || !activityData.location || !activityData.speakerId || !activityData.idArea) {
+                throw new ValidationError("Dados obrigatórios faltando: título, data, hora, localização, palestrantes ou áreas de expertise.");
             }
-
+    
             if (isNaN(new Date(activityData.date).getTime())) {
                 throw new ValidationError("O campo 'data' deve ser uma data válida.");
             }
-
+    
             if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(activityData.time)) {
                 throw new ValidationError("O campo 'hora' deve ser um horário válido no formato HH:mm.");
             }
-
+    
             const activity = this.activityRepository.create({
                 ...activityData,
                 time: activityData.time,
             });
-
+    
             if (activityData.speakerId) {
                 const speakers = await this.speakerRepository.findByIds(activityData.speakerId);
                 activity.speaker = speakers;
             }
-
+    
+            if (activityData.idArea) {
+                const areasOfExpertise = await AppDataSource.getRepository(AreaOfExpertise).findByIds(activityData.idArea);
+                activity.areaOfExpertise = areasOfExpertise;
+            }
+    
             const savedActivity = await this.activityRepository.save(activity);
-
+    
             return {
                 idActivity: savedActivity.idActivity,
                 title: savedActivity.title,
@@ -128,6 +138,10 @@ class ActivityRepository {
                     description: speaker.description || "Sem descrição",
                     role: speaker.role || "Sem função",
                     company: speaker.company || "Sem empresa",
+                })) ?? [],
+                areaOfExpertise: savedActivity.areaOfExpertise?.map(area => ({
+                    idArea: area.idArea,
+                    name: area.name,
                 })) ?? [],
                 checkins: [],
                 likes: [],
