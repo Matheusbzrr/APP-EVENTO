@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Participant } from './participant';
-import { Activity } from './activity';
+import { Post } from './post';
 
 @Entity({ name: 'Like' })
 export class Like {
@@ -12,13 +12,13 @@ export class Like {
     })
     participant!: Participant;
 
-    @ManyToOne(() => Activity, activity => activity.likes, {
+    @ManyToOne(() => Post, post => post.likes, {
         onDelete: 'CASCADE',
     })
-    activity!: Activity;
+    post!: Post;
 
-    constructor(participant: Participant, activity: Activity) {
+    constructor(participant: Participant, post: Post) {
         this.participant = participant;
-        this.activity = activity;
+        this.post = post;
     }
 }

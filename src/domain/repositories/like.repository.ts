@@ -14,7 +14,7 @@ class LikeRepository {
     async findAll(): Promise<LikeDTO[]> {
         try {
             const likes = await this.likeRepository.find({
-                relations: ["participant", "activity"],
+                relations: ["participant", "post"],
             });
 
             if (!likes || likes.length === 0) {
@@ -38,7 +38,7 @@ class LikeRepository {
                               : [],
                       }
                     : null,
-                idActivity: like.activity?.idActivity ?? 0,
+                idPost: like.post?.idPost ?? 0,
             })) as LikeDTO[];
         } catch (error: any) {
             console.error("Erro ao buscar todos os likes:", error);
@@ -68,7 +68,7 @@ class LikeRepository {
 
             const like = this.likeRepository.create({
                 participant: participant,
-                activity: { idActivity: likeData.idActivity },
+                post: { idPost: likeData.idPost },
             });
 
             const savedLike = await this.likeRepository.save(like);
@@ -90,7 +90,7 @@ class LikeRepository {
                               : [],
                       }
                     : null,
-                idActivity: savedLike.activity?.idActivity ?? 0,
+                idPost: savedLike.post?.idPost ?? 0,
             };
         } catch (error: any) {
             console.error("Erro ao criar like:", error);
@@ -100,6 +100,23 @@ class LikeRepository {
                 throw new DatabaseError("Erro ao guardar o Like no banco de dados.");
             } else {
                 throw new TypeError("Erro inesperado ao guardar o Like");
+            }
+        }
+    }
+
+    async CountLikesPerPost (idPost: number): Promise<any> {
+        try {
+
+           return await this.likeRepository.query(
+                'CALL CountLikesPerPostFiltre(?)',
+                [idPost]
+              
+            );
+            
+        }catch (error: any){
+            console.error('Erro ao contar likes por post:', error);
+            if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Erro ao guardar o Like no banco de dados.");
             }
         }
     }

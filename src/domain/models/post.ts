@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Participant } from './participant';
+import { Like } from './like';
 
 @Entity({ name: 'Post' })
 export class Post {
@@ -11,6 +12,9 @@ export class Post {
 
     @Column({ length: 1000, nullable: true })
     description?: string;
+
+    @OneToMany(() => Like, like => like.post)
+        likes!: Like[];
 
     @ManyToOne(() => Participant, participant => participant.posts, {
         onDelete: 'CASCADE',

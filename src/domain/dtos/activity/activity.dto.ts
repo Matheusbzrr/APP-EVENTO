@@ -1,6 +1,6 @@
 import { CheckinDTO } from "../checkin/checkin.dto";
 import { SpeakerDTO } from "../speaker/speaker.dto";
-import { LikeDTO } from "../like/like.dto";
+import { SaveActivityDTO } from "../saveActivity/saveActivityDTO";
 
 export interface ActivityDTO {
     idActivity: number;
@@ -11,5 +11,5 @@ export interface ActivityDTO {
     location: string;
     checkins?: CheckinDTO[];
     speaker?: SpeakerDTO[];
-    likes?: LikeDTO[]; 
+    saveActivits?: SaveActivityDTO[]; 
 }

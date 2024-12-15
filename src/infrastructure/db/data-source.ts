@@ -8,6 +8,7 @@ import { Participant } from "../../domain/models/participant";
 import { Post } from "../../domain/models/post";
 import { Speaker } from "../../domain/models/speaker";
 import { Like } from "../../domain/models/like";
+import { SaveActivity } from "../../domain/models/saveActivity";
 
 export const AppDataSource = new DataSource({
     type: config.dialect as "mysql" | "postgres" | "sqlite" | "mssql" | "oracle",
@@ -23,8 +24,9 @@ export const AppDataSource = new DataSource({
         Participant,
         Post,
         Speaker,
-        Like
+        Like, 
+        SaveActivity
     ],
-    synchronize: true,
+    synchronize: false,
     logging: false,
 });

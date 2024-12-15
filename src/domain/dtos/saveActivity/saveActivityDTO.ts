@@ -1,7 +1,7 @@
 import { ParticipantDTO } from "../participant/participant.dto";
 
-export interface LikeDTO {
-    idLike: number;
+export interface SaveActivityDTO {
+    idSaveActivity: number;
     participant: ParticipantDTO | null;
-    idPost: number;
+    idActivity: number;
 }
