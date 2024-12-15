@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTabl
 import { Checkin } from './checkin';
 import { Speaker } from './speaker';
 import { Like } from './like';
+import { SaveActivity } from './saveActivity';
 
 @Entity({ name: 'Activity' })
 export class Activity {
@@ -26,8 +27,8 @@ export class Activity {
     @OneToMany(() => Checkin, checkin => checkin.activity)
     checkins!: Checkin[];
 
-    @OneToMany(() => Like, like => like.activity)
-    likes!: Like[];
+    @OneToMany(() => SaveActivity, saveActivity => saveActivity.activity)
+    saveActivits!: SaveActivity[];
 
     @ManyToMany(() => Speaker, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
     @JoinTable()

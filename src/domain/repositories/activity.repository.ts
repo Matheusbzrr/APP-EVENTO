@@ -4,10 +4,11 @@ import { CreateActivityDTO } from "../dtos/activity/createActivity.dto";
 import { Activity } from "../models/activity";
 import { Speaker } from "../models/speaker";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
-import { LikeDTO } from "../dtos/like/like.dto";
+import { SaveActivity } from "../models/saveActivity";
 import { DatabaseError } from "../exceptions/data-base-error";
 import { NotFoundError } from "../exceptions/not-found-error";
 import { ValidationError } from "../exceptions/validation-error";
+import { SaveActivityDTO } from "../dtos/saveActivity/saveActivityDTO";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -21,9 +22,9 @@ class ActivityRepository {
                 .leftJoinAndSelect('checkin.participant', 'participant')
                 .leftJoinAndSelect('participant.areaOfExpertise', 'areaOfExpertise')
                 .leftJoinAndSelect('activity.speaker', 'speaker')
-                .leftJoinAndSelect('activity.likes', 'like')
-                .leftJoinAndSelect('like.participant', 'likeParticipant')
-                .leftJoinAndSelect('likeParticipant.areaOfExpertise', 'likeParticipantAreaOfExpertise')
+                .leftJoinAndSelect('activity.saveActivits', 'saveActivity')
+                .leftJoinAndSelect('saveActivity.participant', 'saveActivityParticipant')
+                .leftJoinAndSelect('saveActivityParticipant.areaOfExpertise', 'saveActivityParticipantAreaOfExpertise')
                 .getMany();
 
             if (!activities.length) {
@@ -60,21 +61,21 @@ class ActivityRepository {
                     role: speaker.role || "Sem função",
                     company: speaker.company || "Sem empresa",
                 })) ?? [],
-                likes: activity.likes?.map(like => ({
-                    idLike: like.idLike,
-                    participant: like.participant ? {
-                        idParticipant: like.participant.idParticipant,
-                        name: like.participant.name ?? "Sem nome",
-                        email: like.participant.email ?? "Sem e-mail",
-                        companyName: like.participant.companyName ?? "Sem empresa",
-                        postPermission: like.participant.postPermission ?? 0,
-                        areaOfExpertise: like.participant.areaOfExpertise?.map(area => ({
+                saveActivits: activity.saveActivits?.map(saveActivity => ({
+                    idSaveActivity: saveActivity.idSaveActivity,
+                    participant: saveActivity.participant ? {
+                        idParticipant: saveActivity.participant.idParticipant,
+                        name: saveActivity.participant.name ?? "Sem nome",
+                        email: saveActivity.participant.email ?? "Sem e-mail",
+                        companyName: saveActivity.participant.companyName ?? "Sem empresa",
+                        postPermission: saveActivity.participant.postPermission ?? 0,
+                        areaOfExpertise: saveActivity.participant.areaOfExpertise?.map(area => ({
                             idArea: area.idArea,
                             name: area.name,
                         })) ?? [],
                     } : null,
-                    idActivity: like.activity?.idActivity ?? 0,
-                })) as LikeDTO[],
+                    idActivity: saveActivity.activity?.idActivity ?? 0,
+                })) as SaveActivityDTO[],
             }));
         } catch (error: any) {
             if (error instanceof TypeError) {
@@ -130,7 +131,7 @@ class ActivityRepository {
                     company: speaker.company || "Sem empresa",
                 })) ?? [],
                 checkins: [],
-                likes: [],
+                saveActivits: [],
             };
         } catch (error: any) {
             if (error instanceof ValidationError) {

@@ -3,6 +3,7 @@ import { Checkin } from './checkin';
 import { Post } from './post';
 import { AreaOfExpertise } from './areaOfExpertise';
 import { Like } from './like';
+import { SaveActivity } from './saveActivity';
 
 @Entity({ name: 'Participant' })
 export class Participant {
@@ -26,6 +27,10 @@ export class Participant {
 
     @OneToMany(() => Post, post => post.participant)
     posts!: Post[];
+
+    @OneToMany(() => SaveActivity, saveActivity => saveActivity.participant)
+    saveActivits!: SaveActivity[];
+
 
     @ManyToMany(() => AreaOfExpertise, areaofexpertise => areaofexpertise.participant, { onUpdate: 'CASCADE' })
     @JoinTable()
