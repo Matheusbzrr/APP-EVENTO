@@ -25,6 +25,6 @@ export const AppDataSource = new DataSource({
         Speaker,
         Like
     ],
-    synchronize: false,
+    synchronize: true,
     logging: false,
 });
