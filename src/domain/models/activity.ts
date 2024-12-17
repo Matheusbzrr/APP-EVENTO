@@ -33,6 +33,7 @@ export class Activity {
     @ManyToMany(() => AreaOfExpertise, areaOfExpertise => areaOfExpertise.activity, { onUpdate: 'CASCADE' })
     @JoinTable()
     areaOfExpertise!: AreaOfExpertise[];
+    saveActivits: any;
 
     constructor(title: string, description: string, time: string, location: string) {
         this.title = title;
