@@ -4,11 +4,10 @@ import { CreateActivityDTO } from "../dtos/activity/createActivity.dto";
 import { Activity } from "../models/activity";
 import { Speaker } from "../models/speaker";
 import { CheckinDTO } from "../dtos/checkin/checkin.dto";
-import { SaveActivity } from "../models/saveActivity";
 import { DatabaseError } from "../exceptions/data-base-error";
 import { NotFoundError } from "../exceptions/not-found-error";
 import { ValidationError } from "../exceptions/validation-error";
-import { SaveActivityDTO } from "../dtos/saveActivity/saveActivityDTO";
+import { AreaOfExpertise } from "../models/areaOfExpertise";
 
 class ActivityRepository {
     activityRepository = AppDataSource.getRepository(Activity);
@@ -17,14 +16,12 @@ class ActivityRepository {
     async findAll(): Promise<ActivityDTO[]> {
         try {
             const activities = await this.activityRepository
-                .createQueryBuilder('activity')
-                .leftJoinAndSelect('activity.checkins', 'checkin')
-                .leftJoinAndSelect('checkin.participant', 'participant')
-                .leftJoinAndSelect('participant.areaOfExpertise', 'areaOfExpertise')
-                .leftJoinAndSelect('activity.speaker', 'speaker')
-                .leftJoinAndSelect('activity.saveActivits', 'saveActivity')
-                .leftJoinAndSelect('saveActivity.participant', 'saveActivityParticipant')
-                .leftJoinAndSelect('saveActivityParticipant.areaOfExpertise', 'saveActivityParticipantAreaOfExpertise')
+                .createQueryBuilder("activity")
+                .leftJoinAndSelect("activity.checkins", "checkin")
+                .leftJoinAndSelect("checkin.participant", "participant")
+                .leftJoinAndSelect("participant.areaOfExpertise", "participantAreaOfExpertise")
+                .leftJoinAndSelect("activity.speaker", "speaker")
+                .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise")
                 .getMany();
 
             if (!activities.length) {
@@ -40,17 +37,19 @@ class ActivityRepository {
                 location: activity.location ?? "Sem local",
                 checkins: activity.checkins.map(checkin => ({
                     idCheckin: checkin.idCheckin,
-                    participant: checkin.participant ? {
-                        idParticipant: checkin.participant.idParticipant,
-                        name: checkin.participant.name ?? "Sem nome",
-                        email: checkin.participant.email ?? "Sem e-mail",
-                        companyName: checkin.participant.companyName ?? "Sem empresa",
-                        postPermission: checkin.participant.postPermission ?? 0,
-                        areaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
-                            idArea: area.idArea,
-                            name: area.name,
-                        })) ?? [],
-                    } : null,
+                    participant: checkin.participant
+                        ? {
+                              idParticipant: checkin.participant.idParticipant,
+                              name: checkin.participant.name ?? "Sem nome",
+                              email: checkin.participant.email ?? "Sem e-mail",
+                              companyName: checkin.participant.companyName ?? "Sem empresa",
+                              postPermission: checkin.participant.postPermission ?? 0,
+                              areaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
+                                  idArea: area.idArea,
+                                  name: area.name,
+                              })) ?? [],
+                          }
+                        : null,
                     idActivity: checkin.activity?.idActivity ?? 0,
                     checkinDateTime: checkin.checkinDateTime,
                 })) as CheckinDTO[],
@@ -61,21 +60,10 @@ class ActivityRepository {
                     role: speaker.role || "Sem função",
                     company: speaker.company || "Sem empresa",
                 })) ?? [],
-                saveActivits: activity.saveActivits?.map(saveActivity => ({
-                    idSaveActivity: saveActivity.idSaveActivity,
-                    participant: saveActivity.participant ? {
-                        idParticipant: saveActivity.participant.idParticipant,
-                        name: saveActivity.participant.name ?? "Sem nome",
-                        email: saveActivity.participant.email ?? "Sem e-mail",
-                        companyName: saveActivity.participant.companyName ?? "Sem empresa",
-                        postPermission: saveActivity.participant.postPermission ?? 0,
-                        areaOfExpertise: saveActivity.participant.areaOfExpertise?.map(area => ({
-                            idArea: area.idArea,
-                            name: area.name,
-                        })) ?? [],
-                    } : null,
-                    idActivity: saveActivity.activity?.idActivity ?? 0,
-                })) as SaveActivityDTO[],
+                areaOfExpertise: activity.areaOfExpertise?.map(area => ({
+                    idArea: area.idArea,
+                    name: area.name,
+                })) ?? [],
             }));
         } catch (error: any) {
             if (error instanceof TypeError) {
@@ -92,8 +80,8 @@ class ActivityRepository {
 
     async create(activityData: CreateActivityDTO): Promise<ActivityDTO> {
         try {
-            if (!activityData.title || !activityData.date || !activityData.time || !activityData.location || !activityData.speakerId) {
-                throw new ValidationError("Dados obrigatórios faltando: título, data, hora, localização ou palestrantes.");
+            if (!activityData.title || !activityData.date || !activityData.time || !activityData.location || !activityData.speakerId || !activityData.idArea) {
+                throw new ValidationError("Dados obrigatórios faltando: título, data, hora, localização, palestrantes ou áreas de expertise.");
             }
 
             if (isNaN(new Date(activityData.date).getTime())) {
@@ -114,6 +102,11 @@ class ActivityRepository {
                 activity.speaker = speakers;
             }
 
+            if (activityData.idArea) {
+                const areasOfExpertise = await AppDataSource.getRepository(AreaOfExpertise).findByIds(activityData.idArea);
+                activity.areaOfExpertise = areasOfExpertise;
+            }
+
             const savedActivity = await this.activityRepository.save(activity);
 
             return {
@@ -130,8 +123,11 @@ class ActivityRepository {
                     role: speaker.role || "Sem função",
                     company: speaker.company || "Sem empresa",
                 })) ?? [],
+                areaOfExpertise: savedActivity.areaOfExpertise?.map(area => ({
+                    idArea: area.idArea,
+                    name: area.name,
+                })) ?? [],
                 checkins: [],
-                saveActivits: [],
             };
         } catch (error: any) {
             if (error instanceof ValidationError) {

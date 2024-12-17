@@ -21,6 +21,7 @@ export class Post {
     })
     participant!: Participant;
 
+    
     constructor(participant: Participant, imageUrl?: string, description?: string) {
         this.participant = participant;
         this.imageUrl = imageUrl;

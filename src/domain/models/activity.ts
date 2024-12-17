@@ -1,8 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Checkin } from './checkin';
 import { Speaker } from './speaker';
-import { Like } from './like';
-import { SaveActivity } from './saveActivity';
+import { AreaOfExpertise } from './areaOfExpertise';
 
 @Entity({ name: 'Activity' })
 export class Activity {
@@ -27,12 +26,14 @@ export class Activity {
     @OneToMany(() => Checkin, checkin => checkin.activity)
     checkins!: Checkin[];
 
-    @OneToMany(() => SaveActivity, saveActivity => saveActivity.activity)
-    saveActivits!: SaveActivity[];
-
     @ManyToMany(() => Speaker, { onUpdate: 'CASCADE', onDelete: 'CASCADE' })
     @JoinTable()
     speaker?: Speaker[];
+
+    @ManyToMany(() => AreaOfExpertise, areaOfExpertise => areaOfExpertise.activity, { onUpdate: 'CASCADE' })
+    @JoinTable()
+    areaOfExpertise!: AreaOfExpertise[];
+    saveActivits: any;
 
     constructor(title: string, description: string, time: string, location: string) {
         this.title = title;

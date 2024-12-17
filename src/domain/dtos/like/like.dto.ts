@@ -3,5 +3,5 @@ import { ParticipantDTO } from "../participant/participant.dto";
 export interface LikeDTO {
     idLike: number;
     participant: ParticipantDTO | null;
-    idPost: number;
+    idPost: number
 }
