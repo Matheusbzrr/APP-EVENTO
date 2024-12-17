@@ -9,6 +9,7 @@ import { Post } from "../../domain/models/post";
 import { Speaker } from "../../domain/models/speaker";
 import { Like } from "../../domain/models/like";
 import { SaveActivity } from "../../domain/models/saveActivity";
+import path from 'path';
 
 export const AppDataSource = new DataSource({
     type: config.dialect as "mysql" | "postgres" | "sqlite" | "mssql" | "oracle",
@@ -27,6 +28,10 @@ export const AppDataSource = new DataSource({
         Like, 
         SaveActivity
     ],
-    synchronize: false,
+    synchronize: true,
+    migrationsRun: true,
+    migrations: [
+        path.join(__dirname, "../migrations", "*.ts")  // Ajuste aqui para buscar a pasta migrations diretamente após 'src'
+    ],
     logging: false,
 });
