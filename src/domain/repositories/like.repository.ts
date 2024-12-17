@@ -8,6 +8,7 @@ import { Like } from "../models/like";
 import { Participant } from "../models/participant";
 import { Post } from "../models/post";
 import { AreaOfExpertise } from "../models/areaOfExpertise";
+import { CountLikeDTO } from "../dtos/like/countLike.dto";
 
 class LikeRepository {
     likeRepository = AppDataSource.getRepository(Like);
@@ -114,22 +115,27 @@ class LikeRepository {
         }
     }
 
-    async CountLikesPerPost (idPost: number): Promise<any> {
+    
+    async CountLikesPerPost(idPost: number): Promise<CountLikeDTO> {
         try {
-
-           return await this.likeRepository.query(
+            const result = await this.likeRepository.query(
                 'CALL CountLikesPerPostFiltre(?)',
                 [idPost]
-              
             );
             
-        }catch (error: any){
+            return result[0] as CountLikeDTO; 
+        } catch (error: any) {
             console.error('Erro ao contar likes por post:', error);
-            if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Erro ao guardar o Like no banco de dados.");
-            }
+            
+            return {
+                idPost: idPost,
+                LikeCount: 0, 
+            };
         }
     }
+    
+
+
 }
 
 export default new LikeRepository;
