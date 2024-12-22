@@ -9,19 +9,18 @@ const options = {
       title: "API NRF Retails",
       version: "1.0.0",
       description: "Documentação da API para o evento Retails",
-      
     },
     servers: [
       {
-        url: "/appevento",
+        url: "http://localhost:8080/appevento",
         description: "Servidor principal",
       },
     ],
   },
-  apis: [
-    path.resolve(__dirname, "../api/routes/*.ts"), // Caminho absoluto para as rotas
-    path.resolve(__dirname, "../api/controllers/*.ts"), // Caminho absoluto para os controladores
-  ],
+  
+    apis: ["src/api/routes/*.ts"], 
+
+
 };
 
 const swaggerSpec = swaggerJsdoc(options);

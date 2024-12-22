@@ -31,7 +31,7 @@ export const AppDataSource = new DataSource({
     synchronize: true,
     migrationsRun: true,
     migrations: [
-        path.join(__dirname, "../migrations", "*.ts")  // Ajuste aqui para buscar a pasta migrations diretamente após 'src'
+        path.join(__dirname, "../migrations", "*.ts")  
     ],
     logging: false,
 });

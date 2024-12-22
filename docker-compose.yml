@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_app
+    environment:
+      MYSQL_ROOT_PASSWORD: 32412294
+      MYSQL_DATABASE: AppEvento
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: app_eventto
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: 32412294
+      DB_NAME: AppEvento
+    ports:
+      - "8080:8080" 
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:

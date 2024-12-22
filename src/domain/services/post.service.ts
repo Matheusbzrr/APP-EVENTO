@@ -1,5 +1,5 @@
+import { CreatePostDTO } from "../dtos/post/createPost.dto";
 import { PostDTO } from "../dtos/post/post.dto";
-import { CreatePostDTO } from "../dtos/post/CreatePost.dto";
 import postRepository from "../repositories/post.repository";
 
 class PostService {

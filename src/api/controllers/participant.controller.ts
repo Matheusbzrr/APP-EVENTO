@@ -9,7 +9,8 @@ import { ConflictError } from "../../domain/exceptions/conflict-error";
 
 class ParticipantController {
     async findByEmail(req: Request, res: Response): Promise<void> {
-        const { email } = req.params;
+        const email = decodeURIComponent(req.params.email);
+        console.log('Email recebido:', email);
     
         if (!email) {
             res.status(400).send({ message: "E-mail é obrigatório" });

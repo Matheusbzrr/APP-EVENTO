@@ -4,7 +4,7 @@
     import { NotFoundError } from "../exceptions/not-found-error";
     import { Post } from "../models/post";
     import { Participant } from "../models/participant";
-    import { CreatePostDTO } from "../dtos/post/CreatePost.dto";
+    import { CreatePostDTO } from "../dtos/post/createPost.dto";
 
     class PostRepository {
         postRepository = AppDataSource.getRepository(Post);

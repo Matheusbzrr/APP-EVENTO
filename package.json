@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev ./server.ts",
     "start": "node build/server.js",
-    "build": "rimraf .build && tsc"
+    "build": "rimraf ./build && tsc"
   },
   "keywords": [],
   "author": "Matheus Bezerra da Silva / ",
