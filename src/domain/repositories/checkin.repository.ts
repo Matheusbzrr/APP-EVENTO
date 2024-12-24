@@ -84,6 +84,8 @@ class CheckinRepository {
                           name: savedCheckin.participant.name ?? "Sem nome",
                           email: savedCheckin.participant.email ?? "Sem e-mail",
                           companyName: savedCheckin.participant.companyName ?? "Sem empresa",
+                          position: savedCheckin.participant.position ?? "Sem cargo",
+                            contact: savedCheckin.participant.contact ?? "Sem contato",
                           postPermission: savedCheckin.participant.postPermission ?? 0,
                           AreaOfExpertise: savedCheckin.participant.areaOfExpertise
                               ? savedCheckin.participant.areaOfExpertise.map((area: AreaOfExpertise) => ({

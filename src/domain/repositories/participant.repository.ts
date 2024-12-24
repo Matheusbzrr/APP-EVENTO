@@ -56,7 +56,7 @@ class ParticipantRepository {
 
     async create(participantData: CreateParticipantDTO): Promise<ParticipantDTO> {
         try {
-            const { email, name, idArea, companyName, postPermission } = participantData;
+            const { email, name, idArea, companyName, postPermission , contact, position  } = participantData;
 
             if (!email || !name) {
                 throw new ValidationError("Nome e e-mail são obrigatórios.");
@@ -82,6 +82,8 @@ class ParticipantRepository {
                 email,
                 companyName,
                 postPermission,
+                position,
+                contact,
                 areaOfExpertise: areasOfExpertise,
             });
 
@@ -99,6 +101,8 @@ class ParticipantRepository {
             name: participant.name,
             email: participant.email,
             companyName: participant.companyName,
+            position: participant.position,
+            contact: participant.contact,
             postPermission: participant.postPermission,
             AreaOfExpertise: participant.areaOfExpertise
                 ? participant.areaOfExpertise.map((area: AreaOfExpertise) => ({

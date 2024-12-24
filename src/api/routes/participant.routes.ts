@@ -44,6 +44,10 @@ class ParticipantRoutes {
          *                   type: string
          *                 postPermission:
          *                   type: number
+         *                 position:
+         *                   type: string
+         *                 contact:
+         *                   type: string
          *                 AreaOfExpertise:
          *                   type: array
          *                   items:
@@ -88,6 +92,10 @@ class ParticipantRoutes {
          *                     type: string
          *                   postPermission:
          *                     type: number
+         *                   position:
+         *                     type: string
+         *                   contact:
+         *                     type: string
          *                   AreaOfExpertise:
          *                     type: array
          *                     items:
@@ -135,6 +143,14 @@ class ParticipantRoutes {
          *                 description: Permissão para postar (opcional)
          *                 nullable: true
          *                 example: 1
+         *               position:
+         *                 type: string
+         *                 description: Cargo do participante
+         *                 example: Desenvolvedor de Software
+         *               contact:
+         *                 type: string
+         *                 description: Contato do participante
+         *                 example: 1234567890
          *               idArea:
          *                 type: array
          *                 description: IDs das áreas de expertise do participante

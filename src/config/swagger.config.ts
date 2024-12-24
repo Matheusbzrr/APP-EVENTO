@@ -15,6 +15,10 @@ const options = {
         url: "http://localhost:8080/appevento",
         description: "Servidor principal",
       },
+      {
+        url: "https://missaonrf25.pe.senac.br/appevento",
+        description: "Servidor Prod",
+      },
     ],
   },
   

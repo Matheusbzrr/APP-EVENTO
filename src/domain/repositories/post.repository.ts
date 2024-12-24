@@ -44,6 +44,8 @@
                             name: post.participant.name ?? "Sem nome",
                             email: post.participant.email ?? "Sem e-mail",
                             companyName: post.participant.companyName ?? "Sem empresa",
+                            position: post.participant.position ?? "Sem cargo",
+                            contact: post.participant.contact ?? "Sem contato",
                             postPermission: post.participant.postPermission ?? 0,
                             AreaOfExpertise: post.participant.areaOfExpertise.map(area => ({
                                 idArea: area.idArea,
@@ -59,6 +61,8 @@
                                     name: like.participant.name ?? "Sem nome",
                                     email: like.participant.email ?? "Sem e-mail",
                                     companyName: like.participant.companyName ?? "Sem empresa",
+                                    position: post.participant.position ?? "Sem cargo",
+                                    contact: post.participant.contact ?? "Sem contato",
                                     postPermission: like.participant.postPermission ?? 0,
                                     AreaOfExpertise: like.participant.areaOfExpertise?.map(area => ({
                                         idArea: area.idArea,
@@ -106,6 +110,8 @@
                             name: post.participant.name ?? "Sem nome",
                             email: post.participant.email ?? "Sem e-mail",
                             companyName: post.participant.companyName ?? "Sem empresa",
+                            position: post.participant.position ?? "Sem cargo",
+                            contact: post.participant.contact ?? "Sem contato",
                             postPermission: post.participant.postPermission ?? 0,
                             AreaOfExpertise: post.participant.areaOfExpertise.map(area => ({
                                 idArea: area.idArea,
@@ -162,6 +168,8 @@
                         name: participant.name ?? "Sem nome",
                         email: participant.email ?? "Sem e-mail",
                         companyName: participant.companyName ?? "Sem empresa",
+                        position: post.participant.position ?? "Sem cargo",
+                        contact: post.participant.contact ?? "Sem contato",
                         postPermission: participant.postPermission ?? 0,
                         AreaOfExpertise: participant.areaOfExpertise.map(area => ({
                             idArea: area.idArea,

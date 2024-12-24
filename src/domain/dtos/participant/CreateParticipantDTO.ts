@@ -1,8 +1,10 @@
 export interface CreateParticipantDTO {
-    idParticipant: number;
     name: string;
     email: string;
+    position: string;
+    contact: string;
     companyName?: string;
     idArea: number[];
     postPermission?: number;
+    
 }

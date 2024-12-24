@@ -1,19 +1,20 @@
+# Use uma imagem base oficial do Node.js
 FROM node:21-slim
 
+# Define o diretório de trabalho dentro do container
 WORKDIR /usr/src/app
 
+# Copia os arquivos de configuração do npm para o diretório de trabalho
 COPY package*.json ./
+
+# Instala as dependências do projeto
 RUN npm install
 
+# Copia todos os arquivos do projeto para o diretório de trabalho do container
 COPY . .
 
-RUN npm run build
+# Expõe a porta 8080 para o host
+EXPOSE 8080
 
-# Adicione o script wait-for-it
-RUN apt-get update && apt-get install -y wget \
-    && wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh \
-    && chmod +x wait-for-it.sh
-
-    EXPOSE 8080
-
-    CMD ["./wait-for-it.sh", "mysql:3306", "--", "node", "build/server.js"]
+# Comando para iniciar o servidor
+CMD ["npm", "run", "dev"]

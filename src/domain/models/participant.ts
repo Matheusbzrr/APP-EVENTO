@@ -22,6 +22,11 @@ export class Participant {
     @Column({ type: 'tinyint', nullable: true })
     postPermission?: number;
 
+    @Column({ length: 100, nullable: false })
+    position!: string;
+    @Column({length:15, nullable:false})
+    contact!: string;
+
     @OneToMany(() => Checkin, checkin => checkin.participant)
     checkins!: Checkin[];
 
@@ -39,10 +44,19 @@ export class Participant {
     @OneToMany(() => Like, like => like.participant)
     likes!: Like[];
 
-    constructor(name: string, email: string, companyName?: string, postPermission?: number) {
+    constructor(
+        name: string,
+        email: string,
+        companyName: string,
+        postPermission: number,
+        position: string,
+        contact: string
+    ) {
         this.name = name;
         this.email = email;
         this.companyName = companyName;
         this.postPermission = postPermission;
+        this.position = position;
+        this.contact = contact;
     }
 }

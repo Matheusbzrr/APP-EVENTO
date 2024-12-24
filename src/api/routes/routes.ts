@@ -7,6 +7,7 @@ import speakerRoutes from "./speaker.routes";
 import authRoutes from "./auth.routes";
 import likeRoutes from "./like.routes";
 import postRoutes from "./post.routes";
+import saveActivityRoutes from "./saveActivity.routes";
 
 export default class Routes {
   constructor(app: Application) {
@@ -18,5 +19,6 @@ export default class Routes {
     app.use("/appevento", authRoutes);
     app.use("/appevento", likeRoutes);
     app.use("/appevento", postRoutes);
+    app.use("/appevento", saveActivityRoutes);
   }
 }

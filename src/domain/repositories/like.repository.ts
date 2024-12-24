@@ -35,6 +35,8 @@ class LikeRepository {
                           name: like.participant.name ?? "Sem nome",
                           email: like.participant.email ?? "Sem e-mail",
                           companyName: like.participant.companyName ?? "Sem empresa",
+                          position: like.participant.position ?? "Sem cargo",
+                          contact: like.participant.contact ?? "Sem contato",
                           postPermission: like.participant.postPermission ?? 0,
                           AreaOfExpertise: like.participant.areaOfExpertise?.map((area: AreaOfExpertise) => ({
                               idArea: area.idArea,
@@ -95,6 +97,8 @@ class LikeRepository {
                     name: participant.name ?? "Sem nome",
                     email: participant.email ?? "Sem e-mail",
                     companyName: participant.companyName ?? "Sem empresa",
+                    position: participant.position ?? "Sem cargo",
+                    contact: participant.contact ?? "Sem contato",
                     postPermission: participant.postPermission ?? 0,
                     AreaOfExpertise: participant.areaOfExpertise?.map(area => ({
                         idArea: area.idArea,
