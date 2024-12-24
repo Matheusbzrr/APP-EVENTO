@@ -111,11 +111,13 @@ class SaveActivityRepository {
                 .leftJoinAndSelect("activity.speaker", "speaker")
                 .where("participant.idParticipant = :idParticipant", { idParticipant })
                 .getMany();
-
+    
+            // Retorna uma lista vazia se não houver atividades salvas
             if (!saveActivities.length) {
-                throw new NotFoundError(`Nenhuma atividade salva encontrada para o participante com ID ${idParticipant}.`);
+                console.warn(`Nenhuma atividade salva encontrada para o participante com ID ${idParticipant}.`);
+                return [];
             }
-
+    
             return saveActivities.map(saveActivity => ({
                 idSaveActivity: saveActivity.idSaveActivity,
                 idParticipant: saveActivity.participant.idParticipant,
@@ -159,9 +161,8 @@ class SaveActivityRepository {
             })) as SaveActivityDTO[];
         } catch (error: any) {
             console.error("Erro ao buscar atividades salvas por ID do participante:", error);
-            throw error instanceof NotFoundError
-                ? error
-                : new DatabaseError("Falha ao buscar atividades salvas no banco de dados!");
+            // Trata outros erros como falhas no banco de dados
+            throw new DatabaseError("Falha ao buscar atividades salvas no banco de dados!");
         }
     }
     async delete(idSaveActivity: number): Promise<void> {
