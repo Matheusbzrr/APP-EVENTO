@@ -1,7 +1,8 @@
+import { ActivityDTO } from "../activity/activity.dto";
 import { ParticipantDTO } from "../participant/participant.dto";
 
 export interface SaveActivityDTO {
     idSaveActivity: number;
-    participant: ParticipantDTO | null;
-    idActivity: number;
+    idParticipant: number;
+    activity: ActivityDTO;
 }

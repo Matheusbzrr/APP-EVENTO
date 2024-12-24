@@ -1,10 +1,7 @@
 import { AppDataSource } from "../../infrastructure/db/data-source";
 import { DatabaseError } from "../exceptions/data-base-error";
 import { NotFoundError } from "../exceptions/not-found-error";
-import { RecordNotFoundError } from "../exceptions/record-not-found";
 import { SaveActivity } from "../models/saveActivity";
-import { Participant } from "../models/participant";
-import { Activity } from "../models/activity";
 import { SaveActivityDTO } from "../dtos/saveActivity/saveActivityDTO";
 import { CreateSaveActivityDTO } from "../dtos/saveActivity/createSaveActivity";
 
@@ -17,6 +14,8 @@ class SaveActivityRepository {
                 .createQueryBuilder("saveActivity")
                 .leftJoinAndSelect("saveActivity.participant", "participant")
                 .leftJoinAndSelect("saveActivity.activity", "activity")
+                .leftJoinAndSelect("activity.areaOfExpertise", "areaOfExpertise")
+                .leftJoinAndSelect("activity.speaker", "speaker")
                 .getMany();
 
             if (!saveActivities.length) {
@@ -25,74 +24,91 @@ class SaveActivityRepository {
 
             return saveActivities.map(saveActivity => ({
                 idSaveActivity: saveActivity.idSaveActivity,
-                participant: saveActivity.participant
-                    ? {
-                          idParticipant: saveActivity.participant.idParticipant,
-                          name: saveActivity.participant.name ?? "Sem nome",
-                          email: saveActivity.participant.email ?? "Sem e-mail",
-                          companyName: saveActivity.participant.companyName ?? "Sem empresa",
-                          postPermission: saveActivity.participant.postPermission ?? 0,
-                      }
-                    : null,
-                idActivity: saveActivity.activity?.idActivity ?? 0,
+                idParticipant: saveActivity.participant.idParticipant,
+                activity: {
+                    idActivity: saveActivity.activity.idActivity,
+                    title: saveActivity.activity.title,
+                    description: saveActivity.activity.description,
+                    time: saveActivity.activity.time,
+                    date: saveActivity.activity.date,
+                    location: saveActivity.activity.location,
+                    checkins: saveActivity.activity.checkins?.map(checkin => ({
+                        idCheckin: checkin.idCheckin,
+                        participant: checkin.participant
+                            ? {
+                                  idParticipant: checkin.participant.idParticipant,
+                                  name: checkin.participant.name ?? "Sem nome",
+                                  email: checkin.participant.email ?? "Sem e-mail",
+                                  companyName: checkin.participant.companyName ?? "Sem empresa",
+                                  postPermission: checkin.participant.postPermission ?? 0,
+                                  areaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
+                                      idArea: area.idArea,
+                                      name: area.name,
+                                  })) ?? [],
+                              }
+                            : null,
+                        idActivity: checkin.activity?.idActivity ?? 0,
+                        checkinDateTime: checkin.checkinDateTime,
+                    })) ?? [],
+                    speaker: saveActivity.activity.speaker?.map(speaker => ({
+                        idSpeaker: speaker.idSpeaker,
+                        name: speaker.name ?? "Sem nome",
+                        description: speaker.description || "Sem descrição",
+                        role: speaker.role || "Sem função",
+                        company: speaker.company || "Sem empresa",
+                    })) ?? [],
+                    areaOfExpertise: saveActivity.activity.areaOfExpertise?.map(area => ({
+                        idArea: area.idArea,
+                        name: area.name,
+                    })) ?? [],
+                },
             })) as SaveActivityDTO[];
         } catch (error: any) {
             console.error("Erro ao buscar todas as atividades salvas:", error);
-            if (error instanceof NotFoundError) {
-                throw error;
-            } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao buscar as atividades salvas no banco de dados!");
-            } else {
-                throw new TypeError("Falha inesperada ao buscar as atividades salvas!");
-            }
+            throw error instanceof NotFoundError
+                ? error
+                : new DatabaseError("Falha ao buscar atividades salvas no banco de dados!");
         }
     }
 
     async create(saveActivityData: CreateSaveActivityDTO): Promise<SaveActivityDTO> {
         try {
             const saveActivity = this.saveActivityRepository.create({
-                participant: { idParticipant: saveActivityData.idParticipant } as Participant,
-                activity: { idActivity: saveActivityData.idActivity } as Activity,
+                participant: { idParticipant: saveActivityData.idParticipant },
+                activity: { idActivity: saveActivityData.idActivity },
             });
-    
+
             const savedSaveActivity = await this.saveActivityRepository.save(saveActivity);
-    
+
             return {
                 idSaveActivity: savedSaveActivity.idSaveActivity,
-                participant: savedSaveActivity.participant
-                    ? {
-                          idParticipant: savedSaveActivity.participant.idParticipant,
-                          name: savedSaveActivity.participant.name ?? "Sem nome",
-                          email: savedSaveActivity.participant.email ?? "Sem e-mail",
-                          position: savedSaveActivity.participant.position ?? "Sem cargo",
-                          contact: savedSaveActivity.participant.contact ?? "Sem contato",
-                          companyName: savedSaveActivity.participant.companyName ?? "Sem empresa",
-                          postPermission: savedSaveActivity.participant.postPermission ?? 0,
-                          AreaOfExpertise: savedSaveActivity.participant.areaOfExpertise
-                              ? savedSaveActivity.participant.areaOfExpertise.map(area => ({
-                                    idArea: area.idArea,
-                                    name: area.name,
-                                }))
-                              : [],
-                      }
-                    : null,
-                idActivity: savedSaveActivity.activity?.idActivity ?? 0,
+                idParticipant: savedSaveActivity.participant.idParticipant,
+                activity: {
+                    idActivity: savedSaveActivity.activity.idActivity,
+                    title: savedSaveActivity.activity.title,
+                    description: savedSaveActivity.activity.description,
+                    time: savedSaveActivity.activity.time,
+                    date: savedSaveActivity.activity.date,
+                    location: savedSaveActivity.activity.location,
+                    checkins: [],
+                    speaker: [],
+                    areaOfExpertise: [],
+                },
             };
         } catch (error: any) {
             console.error("Erro ao criar atividade salva:", error);
-            if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao criar a atividade salva no banco de dados!");
-            } else {
-                throw new TypeError("Falha inesperada ao criar a atividade salva!");
-            }
+            throw new DatabaseError("Falha ao criar a atividade salva no banco de dados!");
         }
     }
+
     async findByParticipantId(idParticipant: number): Promise<SaveActivityDTO[]> {
         try {
             const saveActivities = await this.saveActivityRepository
                 .createQueryBuilder("saveActivity")
                 .leftJoinAndSelect("saveActivity.participant", "participant")
                 .leftJoinAndSelect("saveActivity.activity", "activity")
+                .leftJoinAndSelect("activity.areaOfExpertise", "areaOfExpertise")
+                .leftJoinAndSelect("activity.speaker", "speaker")
                 .where("participant.idParticipant = :idParticipant", { idParticipant })
                 .getMany();
 
@@ -102,27 +118,66 @@ class SaveActivityRepository {
 
             return saveActivities.map(saveActivity => ({
                 idSaveActivity: saveActivity.idSaveActivity,
-                participant: saveActivity.participant
-                    ? {
-                          idParticipant: saveActivity.participant.idParticipant,
-                          name: saveActivity.participant.name ?? "Sem nome",
-                          email: saveActivity.participant.email ?? "Sem e-mail",
-                          companyName: saveActivity.participant.companyName ?? "Sem empresa",
-                          postPermission: saveActivity.participant.postPermission ?? 0,
-                      }
-                    : null,
-                idActivity: saveActivity.activity?.idActivity ?? 0,
+                idParticipant: saveActivity.participant.idParticipant,
+                activity: {
+                    idActivity: saveActivity.activity.idActivity,
+                    title: saveActivity.activity.title,
+                    description: saveActivity.activity.description,
+                    time: saveActivity.activity.time,
+                    date: saveActivity.activity.date,
+                    location: saveActivity.activity.location,
+                    checkins: saveActivity.activity.checkins?.map(checkin => ({
+                        idCheckin: checkin.idCheckin,
+                        participant: checkin.participant
+                            ? {
+                                  idParticipant: checkin.participant.idParticipant,
+                                  name: checkin.participant.name ?? "Sem nome",
+                                  email: checkin.participant.email ?? "Sem e-mail",
+                                  companyName: checkin.participant.companyName ?? "Sem empresa",
+                                  postPermission: checkin.participant.postPermission ?? 0,
+                                  areaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
+                                      idArea: area.idArea,
+                                      name: area.name,
+                                  })) ?? [],
+                              }
+                            : null,
+                        idActivity: checkin.activity?.idActivity ?? 0,
+                        checkinDateTime: checkin.checkinDateTime,
+                    })) ?? [],
+                    speaker: saveActivity.activity.speaker?.map(speaker => ({
+                        idSpeaker: speaker.idSpeaker,
+                        name: speaker.name ?? "Sem nome",
+                        description: speaker.description || "Sem descrição",
+                        role: speaker.role || "Sem função",
+                        company: speaker.company || "Sem empresa",
+                    })) ?? [],
+                    areaOfExpertise: saveActivity.activity.areaOfExpertise?.map(area => ({
+                        idArea: area.idArea,
+                        name: area.name,
+                    })) ?? [],
+                },
             })) as SaveActivityDTO[];
         } catch (error: any) {
             console.error("Erro ao buscar atividades salvas por ID do participante:", error);
-            if (error instanceof NotFoundError) {
-                throw error;
-            } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao buscar atividades salvas no banco de dados!");
-            } else {
-                throw new TypeError("Falha inesperada ao buscar atividades salvas!");
+            throw error instanceof NotFoundError
+                ? error
+                : new DatabaseError("Falha ao buscar atividades salvas no banco de dados!");
+        }
+    }
+    async delete(idSaveActivity: number): Promise<void> {
+        try {
+            const result = await this.saveActivityRepository.delete({ idSaveActivity });
+    
+            if (result.affected === 0) {
+                throw new NotFoundError(`Atividade salva com ID ${idSaveActivity} não encontrada.`);
             }
+        } catch (error: any) {
+            console.error("Erro ao deletar atividade salva:", error);
+            throw error.name === "QueryFailedError"
+                ? new DatabaseError("Falha ao deletar a atividade salva no banco de dados!")
+                : new TypeError("Erro inesperado ao deletar a atividade salva.");
         }
     }
 }
+
 export default new SaveActivityRepository();

@@ -3,8 +3,8 @@ import { Request, Response } from "express";
 import { DatabaseError } from "../../domain/exceptions/data-base-error";
 import { NotFoundError } from "../../domain/exceptions/not-found-error";
 import { RecordNotFoundError } from "../../domain/exceptions/record-not-found";
-import SaveActivityService from "../../domain/services/SaveActivity.service";
 import { CreateSaveActivityDTO } from "../../domain/dtos/saveActivity/createSaveActivity";
+import SaveActivityService from "../../domain/services/saveActivity.service";
 
 class SaveActivityController {
     async findAll(req: Request, res: Response): Promise<void> {
@@ -65,6 +65,23 @@ class SaveActivityController {
                 res.status(500).send({ message: err.message });
             } else {
                 res.status(500).send({ message: "Erro desconhecido" });
+            }
+        }
+    }
+
+    async delete(req: Request, res: Response): Promise<void> {
+        try {
+            const {idSaveActivity} = req.params
+            await SaveActivityService.deleteSaveActivity(Number(idSaveActivity));
+            res.status(204).send();
+        } catch (err: any){
+            console.error("Erro ao deletar atividade salva:", err);
+            if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else {
+                res.status(500).send({ message: "Erro interno ao deletar atividade salva." });
             }
         }
     }
