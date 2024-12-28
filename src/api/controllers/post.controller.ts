@@ -42,7 +42,21 @@ class PostController {
 
     async createPost(req: Request, res: Response): Promise<void> {
         try {
-            const postData = req.body;
+            const { idParticipant, description } = req.body;
+
+            if (!idParticipant || !description || !req.file) {
+                throw new ValidationError("Todos os campos são obrigatórios.");
+            }
+
+            // Obtenha o caminho da imagem
+            const imageUrl = `/uploads/${req.file.filename}`;
+
+            const postData = {
+                idParticipant,
+                description,
+                imageUrl,
+            };
+
             const post = await postService.createPost(postData);
             res.status(201).json(post);
         } catch (err: any) {

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import PostController from "../controllers/post.controller";
+import { upload } from "../../config/multer.config";
 
 class PostRoutes {
     router = Router();
@@ -227,8 +228,11 @@ class PostRoutes {
          *       500:
          *         description: Erro ao criar o post.
          */
-        this.router.post("/posts", this.controller.createPost);
-
+        this.router.post(
+            "/posts",
+            upload.single("image"),
+            this.controller.createPost
+        );
         /**
          * @openapi
          * /posts/{id}:
