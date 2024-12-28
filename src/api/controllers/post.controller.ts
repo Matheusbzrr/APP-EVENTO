@@ -8,7 +8,13 @@ class PostController {
     async getAllPosts(req: Request, res: Response): Promise<void> {
         try {
             const posts = await postService.getAllPosts();
-            res.status(200).json(posts);
+    
+            const adjustedPosts = posts.map((post) => ({
+                ...post,
+                imageUrl: `${req.protocol}://${req.get("host")}${post.imageUrl}`, // Adiciona o host ao caminho da imagem
+            }));
+    
+            res.status(200).json(adjustedPosts);
         } catch (err: any) {
             console.error("Erro ao buscar posts:", err);
             if (err instanceof DatabaseError) {
@@ -18,7 +24,7 @@ class PostController {
             }
         }
     }
-
+    
     async getPostsByParticipantEmail(req: Request, res: Response): Promise<void> {
         try {
             const { email } = req.query;
@@ -26,8 +32,15 @@ class PostController {
                 res.status(400).send({ message: "E-mail inválido ou não fornecido." });
                 return;
             }
+    
             const posts = await postService.getPostsByParticipantEmail(email);
-            res.status(200).json(posts);
+    
+            const adjustedPosts = posts.map((post) => ({
+                ...post,
+                imageUrl: `${req.protocol}://${req.get("host")}${post.imageUrl}`, // Adiciona o host ao caminho da imagem
+            }));
+    
+            res.status(200).json(adjustedPosts);
         } catch (err: any) {
             console.error("Erro ao buscar posts por e-mail:", err);
             if (err instanceof NotFoundError) {
