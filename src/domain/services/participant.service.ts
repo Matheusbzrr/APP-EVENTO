@@ -5,6 +5,7 @@ import { ValidationError } from "../exceptions/validation-error";
 import { ConflictError } from "../exceptions/conflict-error";
 import { NotFoundError } from "../exceptions/not-found-error";
 import { Participant } from "../models/participant";
+import { AppDataSource } from "../../infrastructure/db/data-source";
 
 class ParticipantService {
     async getAllParticipants(): Promise<ParticipantDTO[]> {
@@ -33,33 +34,33 @@ class ParticipantService {
 
     async createParticipant(participantData: CreateParticipantDTO): Promise<ParticipantDTO> {
         const { email, name, idArea } = participantData;
-
+    
         if (!email || !name) {
             throw new ValidationError("Nome e e-mail são obrigatórios.");
         }
-
+    
         const existingParticipant = await participantRepository.findByEmail(email);
         if (existingParticipant) {
             throw new ConflictError("Já existe um participante com esse e-mail.");
         }
-
+    
         const areasOfExpertise = await participantRepository.findAreasByIds(idArea);
         if (areasOfExpertise.length !== idArea.length) {
             throw new ValidationError("Uma ou mais áreas de expertise fornecidas são inválidas.");
         }
-
-        const participant = new Participant(
-            participantData.name,
-            participantData.email,
-            participantData.companyName || "",
-            participantData.postPermission || 0,
-            participantData.position,
-            participantData.contact
-        );
-        participant.areaOfExpertise = areasOfExpertise;
-
+    
+        const participant = AppDataSource.getRepository(Participant).create({
+            name: participantData.name,
+            email: participantData.email,
+            companyName: participantData.companyName || "",
+            postPermission: participantData.postPermission || 0,
+            position: participantData.position,
+            contact: participantData.contact,
+            areaOfExpertise: areasOfExpertise,
+        });
+    
         const savedParticipant = await participantRepository.save(participant);
-
+    
         return this.mapToParticipantDTO(savedParticipant);
     }
 
