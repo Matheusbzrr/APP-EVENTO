@@ -7,7 +7,9 @@
         async getAllActivities(): Promise<ActivityDTO[]> {
             return await activityRepository.findAll();
         }
-
+        async getActivityById(id: number): Promise<ActivityDTO> {
+            return await activityRepository.findById(id);
+        }
         async createActivity(activityData: CreateActivityDTO): Promise<ActivityDTO> {
             return await activityRepository.create(activityData);
         }

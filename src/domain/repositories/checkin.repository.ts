@@ -109,6 +109,51 @@ class CheckinRepository {
             }
         }
     }
+    async getCheckinsByParticipantId(idParticipant: number): Promise<CheckinDTO[]> {
+        try {
+            const checkins = await this.checkinRepository
+                .createQueryBuilder("checkin")
+                .leftJoinAndSelect("checkin.participant", "participant")
+                .leftJoinAndSelect("participant.areaOfExpertise", "areaOfExpertise") // Inclui área de expertise do participante
+                .leftJoinAndSelect("checkin.activity", "activity")
+                .where("participant.idParticipant = :id", { id: idParticipant }) // Filtra pelo id do participante
+                .getMany();
+
+            if (!checkins.length) {
+                throw new NotFoundError(`Nenhum check-in encontrado para o participante com id ${idParticipant}.`);
+            }
+
+            return checkins.map(checkin => ({
+                idCheckin: checkin.idCheckin,
+                participant: checkin.participant
+                    ? {
+                          idParticipant: checkin.participant.idParticipant,
+                          name: checkin.participant.name ?? "Sem nome",
+                          email: checkin.participant.email ?? "Sem e-mail",
+                          companyName: checkin.participant.companyName ?? "Sem empresa",
+                          postPermission: checkin.participant.postPermission ?? 0,
+                          AreaOfExpertise: checkin.participant.areaOfExpertise
+                              ? checkin.participant.areaOfExpertise.map((area: AreaOfExpertise) => ({
+                                    idArea: area.idArea,
+                                    name: area.name,
+                                }))
+                              : [],
+                      }
+                    : null,
+                idActivity: checkin.activity?.idActivity ?? 0,
+                checkinDateTime: checkin.checkinDateTime,
+            })) as CheckinDTO[];
+        } catch (error: any) {
+            console.error("Erro ao buscar check-ins por id do participante:", error);
+            if (error instanceof NotFoundError) {
+                throw error;
+            } else if (error.name === "QueryFailedError") {
+                throw new DatabaseError("Falha ao buscar os check-ins no banco de dados!");
+            } else {
+                throw new TypeError("Falha inesperada ao buscar os check-ins!");
+            }
+        }
+    }
 }
 
 export default new CheckinRepository();

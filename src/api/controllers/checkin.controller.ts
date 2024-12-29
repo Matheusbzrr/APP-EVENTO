@@ -48,6 +48,23 @@ class CheckinController {
             }
         }
     }
+    async getCheckinsByParticipant(req: Request, res: Response): Promise<void> {
+        const { idParticipant } = req.params; // Obtém o id do participante da URL
+
+        try {
+            const checkins = await checkinService.getCheckinsByParticipantId(parseInt(idParticipant));
+            res.json(checkins);
+        } catch (err: any) {
+            console.error("Erro ao buscar check-ins do participante:", err);
+            if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else {
+                res.status(500).send({ message: "Erro desconhecido" });
+            }
+        }
+    }
 }
 
 export default new CheckinController();

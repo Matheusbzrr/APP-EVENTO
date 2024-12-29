@@ -84,6 +84,36 @@ class ParticipantController {
             }
         }
     }
+    async update(req: Request, res: Response): Promise<void> {
+        try {
+            const id = parseInt(req.params.id, 10);
+    
+            if (isNaN(id)) {
+                res.status(400).send({ message: "O ID do participante é inválido." });
+                return;
+            }
+    
+            const updateData = req.body;
+            console.log("Dados recebidos para atualização:", updateData);
+    
+            const updatedParticipant = await participantService.updateParticipant(id, updateData);
+    
+            res.status(200).json(updatedParticipant);
+        } catch (err) {
+            if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof ValidationError) {
+                res.status(400).send({ message: err.message });
+            } else if (err instanceof ConflictError) {
+                res.status(409).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else {
+                console.error("Erro ao atualizar participante:", err);
+                res.status(500).send({ message: "Erro ao atualizar participante" });
+            }
+        }
+    }
 }
 
 export default new ParticipantController();

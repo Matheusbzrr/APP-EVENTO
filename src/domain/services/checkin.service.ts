@@ -9,6 +9,9 @@ class CheckinService {
     async createCheckin(checkinData: CreateCheckinDTO): Promise<CheckinDTO> {
         return await checkinRepository.create(checkinData);
     }
+    async getCheckinsByParticipantId(idParticipant: number): Promise<CheckinDTO[]> {
+        return await checkinRepository.getCheckinsByParticipantId(idParticipant);
+    }
 }
 
 export default new CheckinService();

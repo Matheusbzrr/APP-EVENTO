@@ -73,8 +73,52 @@ class CheckinRoutes {
          *       500:
          *         description: Erro ao tentar criar o checkin.
          */
+        
         this.router.post("/checkins", this.controller.create);
+
+        /**
+         * @openapi
+         * /checkins/participant/{idParticipant}:
+         *   get:
+         *     tags:
+         *       - Checkins
+         *     summary: Obter os checkins de um participante específico
+         *     description: Retorna a lista de checkins realizados por um participante específico.
+         *     parameters:
+         *       - in: path
+         *         name: idParticipant
+         *         required: true
+         *         description: ID do participante
+         *         schema:
+         *           type: number
+         *           example: 1
+         *     responses:
+         *       200:
+         *         description: Lista de checkins do participante.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: array
+         *               items:
+         *                 type: object
+         *                 properties:
+         *                   id:
+         *                     type: number
+         *                     description: ID único do checkin.
+         *                   idParticipant:
+         *                     type: number
+         *                     description: ID do participante que realizou o checkin.
+         *                   idActivity:
+         *                     type: number
+         *                     description: ID da atividade em que o checkin foi realizado.
+         *       404:
+         *         description: Participante não encontrado ou não possui check-ins.
+         *       500:
+         *         description: Erro ao tentar buscar os checkins do participante.
+         */
+        this.router.get("/checkins/participant/:idParticipant", this.controller.getCheckinsByParticipant);
     }
+    
 }
 
 export default new CheckinRoutes().router;

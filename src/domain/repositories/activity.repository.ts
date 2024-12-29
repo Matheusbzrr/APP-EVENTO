@@ -156,6 +156,70 @@ class ActivityRepository {
             }
         }
     }
+    async findById(id: number): Promise<ActivityDTO> {
+        try {
+            const activity = await this.activityRepository
+                .createQueryBuilder("activity")
+                .leftJoinAndSelect("activity.checkins", "checkin")
+                .leftJoinAndSelect("checkin.participant", "participant")
+                .leftJoinAndSelect("participant.areaOfExpertise", "participantAreaOfExpertise")
+                .leftJoinAndSelect("activity.speaker", "speaker")
+                .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise")
+                .where("activity.idActivity = :id", { id })
+                .getOne();
+    
+            if (!activity) {
+                throw new NotFoundError("Atividade não encontrada.");
+            }
+    
+            return {
+                idActivity: activity.idActivity,
+                title: activity.title ?? "Sem título",
+                description: activity.description ?? "Sem descrição",
+                time: activity.time ?? "00:00",
+                date: activity.date ?? new Date("2000-01-01"),
+                location: activity.location ?? "Sem local",
+                checkins: activity.checkins.map(checkin => ({
+                    idCheckin: checkin.idCheckin,
+                    participant: checkin.participant
+                        ? {
+                            idParticipant: checkin.participant.idParticipant,
+                            name: checkin.participant.name ?? "Sem nome",
+                            email: checkin.participant.email ?? "Sem e-mail",
+                            companyName: checkin.participant.companyName ?? "Sem empresa",
+                            position: checkin.participant.position ?? "Sem cargo",
+                            contact: checkin.participant.contact ?? "Sem contato",
+                            postPermission: checkin.participant.postPermission ?? 0,
+                            AreaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
+                                idArea: area.idArea,
+                                name: area.name,
+                            })) ?? [],
+                        }
+                        : null,
+                    idActivity: checkin.activity?.idActivity ?? 0,
+                    checkinDateTime: checkin.checkinDateTime,
+                })),
+                speaker: activity.speaker?.map(speaker => ({
+                    idSpeaker: speaker.idSpeaker,
+                    name: speaker.name ?? "Sem nome",
+                    description: speaker.description || "Sem descrição",
+                    role: speaker.role || "Sem função",
+                    company: speaker.company || "Sem empresa",
+                })) ?? [],
+                areaOfExpertise: activity.areaOfExpertise?.map(area => ({
+                    idArea: area.idArea,
+                    name: area.name,
+                })) ?? [],
+            };
+        } catch (error: any) {
+            if (error instanceof NotFoundError) {
+                throw error;
+            } else {
+                console.error("Erro desconhecido ao buscar atividade:", error);
+                throw new Error("Erro desconhecido ao buscar atividade.");
+            }
+        }
+    }
 }
 
 export default new ActivityRepository();

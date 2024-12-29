@@ -190,6 +190,61 @@ class ActivityRoutes {
      *         description: Erro ao excluir a atividade.
      */
     this.router.delete("/activities/:id", ActivityController.delete);
+
+    /**
+     * @openapi
+     * /activities/{id}:
+     *   get:
+     *     tags:
+     *       - Activities
+     *     summary: Obter atividade pelo ID
+     *     description: Retorna uma atividade específica pelo ID fornecido.
+     *     parameters:
+     *       - name: id
+     *         in: path
+     *         required: true
+     *         description: ID da atividade a ser recuperada.
+     *         schema:
+     *           type: integer
+     *           example: 1
+     *     responses:
+     *       200:
+     *         description: Atividade encontrada com sucesso.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 idActivity:
+     *                   type: number
+     *                   description: ID da atividade.
+     *                   example: 1
+     *                 title:
+     *                   type: string
+     *                   description: Título da atividade.
+     *                   example: Workshop de Tecnologia
+     *                 description:
+     *                   type: string
+     *                   description: Detalhes sobre a atividade.
+     *                   example: Um workshop sobre as tendências de tecnologia em 2024.
+     *                 time:
+     *                   type: string
+     *                   description: Hora de início da atividade.
+     *                   example: "14:00"
+     *                 date:
+     *                   type: string
+     *                   description: Data da atividade.
+     *                   example: "2024-12-15"
+     *                 location:
+     *                   type: string
+     *                   description: Localização da atividade.
+     *                   example: Auditório Principal
+     *       404:
+     *         description: Atividade não encontrada.
+     *       500:
+     *         description: Erro ao buscar a atividade.
+     */
+    this.router.get("/activities/:id", ActivityController.findById);
   }
 }
 

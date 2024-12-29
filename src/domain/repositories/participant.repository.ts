@@ -94,6 +94,56 @@ class ParticipantRepository {
             this.handleRepositoryError(error, "criar o Participante");
         }
     }
+    async updateParticipant(id: number, updateData: Partial<CreateParticipantDTO>): Promise<ParticipantDTO> {
+        try {
+            const participant = await this.participantRepository.findOne({
+                where: { idParticipant: id },
+                relations: ["areaOfExpertise"],
+            });
+    
+            if (!participant) {
+                throw new NotFoundError(`Participante com ID ${id} não encontrado.`);
+            }
+    
+            if (updateData.email) {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(updateData.email)) {
+                    throw new ValidationError("O e-mail fornecido não tem um formato válido.");
+                }
+    
+                const emailExists = await this.participantRepository.findOneBy({
+                    email: updateData.email,
+                });
+    
+                if (emailExists && emailExists.idParticipant !== id) {
+                    throw new ConflictError("Já existe um participante com esse e-mail.");
+                }
+            }
+    
+            if (updateData.idArea) {
+                const areasOfExpertise = await this.areaOfExpertiseRepository.findByIds(updateData.idArea);
+                if (areasOfExpertise.length !== updateData.idArea.length) {
+                    throw new ValidationError("Uma ou mais áreas de expertise fornecidas são inválidas.");
+                }
+                participant.areaOfExpertise = areasOfExpertise;
+            }
+    
+            Object.assign(participant, {
+                name: updateData.name || participant.name,
+                email: updateData.email || participant.email,
+                companyName: updateData.companyName || participant.companyName,
+                position: updateData.position || participant.position,
+                contact: updateData.contact || participant.contact,
+                postPermission: updateData.postPermission ?? participant.postPermission,
+            });
+    
+            const updatedParticipant = await this.participantRepository.save(participant);
+    
+            return this.mapToParticipantDTO(updatedParticipant);
+        } catch (error: any) {
+            this.handleRepositoryError(error, "atualizar o Participante");
+        }
+    }
 
     private mapToParticipantDTO(participant: Participant): ParticipantDTO {
         return {

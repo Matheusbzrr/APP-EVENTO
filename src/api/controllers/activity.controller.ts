@@ -70,6 +70,22 @@ class ActivityController {
             }
         }
     }
+    async findById(req: Request, res: Response): Promise<void> {
+        const { id } = req.params;
+        try {
+          const activity = await activityService.getActivityById(Number(id));
+          res.json(activity);
+        } catch (err) {
+          console.error("Erro ao buscar atividade por ID:", err);
+          if (err instanceof NotFoundError) {
+            res.status(404).send({ message: err.message });
+          } else if (err instanceof DatabaseError) {
+            res.status(503).send({ message: err.message });
+          } else {
+            res.status(500).send({ message: "Erro ao buscar a atividade." });
+          }
+        }
+      }
 }
 
 export default new ActivityController();
