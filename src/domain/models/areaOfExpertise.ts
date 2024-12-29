@@ -21,8 +21,4 @@ export class AreaOfExpertise {
         onDelete: 'CASCADE',
     })
     activity?: Activity[];
-
-    constructor(name: string) {
-        this.name = name;
-    }
 }

@@ -1,224 +1,53 @@
 import { AppDataSource } from "../../infrastructure/db/data-source";
-import { ActivityDTO } from "../dtos/activity/activity.dto";
-import { CreateActivityDTO } from "../dtos/activity/createActivity.dto";
 import { Activity } from "../models/activity";
 import { Speaker } from "../models/speaker";
-import { CheckinDTO } from "../dtos/checkin/checkin.dto";
-import { DatabaseError } from "../exceptions/data-base-error";
-import { NotFoundError } from "../exceptions/not-found-error";
-import { ValidationError } from "../exceptions/validation-error";
 import { AreaOfExpertise } from "../models/areaOfExpertise";
 
 class ActivityRepository {
-    activityRepository = AppDataSource.getRepository(Activity);
-    speakerRepository = AppDataSource.getRepository(Speaker);
-
-    async findAll(): Promise<ActivityDTO[]> {
-        try {
-            const activities = await this.activityRepository
-                .createQueryBuilder("activity")
-                .leftJoinAndSelect("activity.checkins", "checkin")
-                .leftJoinAndSelect("checkin.participant", "participant")
-                .leftJoinAndSelect("participant.areaOfExpertise", "participantAreaOfExpertise")
-                .leftJoinAndSelect("activity.speaker", "speaker")
-                .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise")
-                .getMany();
-
-            if (!activities.length) {
-                throw new NotFoundError("Nenhuma atividade disponível no momento.");
-            }
-
-            return activities.map(activity => ({
-                idActivity: activity.idActivity,
-                title: activity.title ?? "Sem título",
-                description: activity.description ?? "Sem descrição",
-                time: activity.time ?? "00:00",
-                date: activity.date ?? new Date("2000-01-01"),
-                location: activity.location ?? "Sem local",
-                checkins: activity.checkins.map(checkin => ({
-                    idCheckin: checkin.idCheckin,
-                    participant: checkin.participant
-                        ? {
-                              idParticipant: checkin.participant.idParticipant,
-                              name: checkin.participant.name ?? "Sem nome",
-                              email: checkin.participant.email ?? "Sem e-mail",
-                              companyName: checkin.participant.companyName ?? "Sem empresa",
-                              postPermission: checkin.participant.postPermission ?? 0,
-                              areaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
-                                  idArea: area.idArea,
-                                  name: area.name,
-                              })) ?? [],
-                          }
-                        : null,
-                    idActivity: checkin.activity?.idActivity ?? 0,
-                    checkinDateTime: checkin.checkinDateTime,
-                })) as CheckinDTO[],
-                speaker: activity.speaker?.map(speaker => ({
-                    idSpeaker: speaker.idSpeaker,
-                    name: speaker.name ?? "Sem nome",
-                    description: speaker.description || "Sem descrição",
-                    role: speaker.role || "Sem função",
-                    company: speaker.company || "Sem empresa",
-                })) ?? [],
-                areaOfExpertise: activity.areaOfExpertise?.map(area => ({
-                    idArea: area.idArea,
-                    name: area.name,
-                })) ?? [],
-            }));
-        } catch (error: any) {
-            if (error instanceof TypeError) {
-                throw new TypeError("Erro interno no servidor. Por favor, tente novamente mais tarde.");
-            } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao tentar acessar as Atividades! Por favor, tente novamente.");
-            } else if (error instanceof NotFoundError) {
-                throw error;
-            } else {
-                throw new Error("Erro desconhecido. Por favor, entre em contato com o suporte.");
-            }
-        }
+    async findAll(): Promise<Activity[]> {
+        return await AppDataSource.getRepository(Activity)
+            .createQueryBuilder("activity")
+            .leftJoinAndSelect("activity.checkins", "checkin")
+            .leftJoinAndSelect("checkin.participant", "participant")
+            .leftJoinAndSelect("participant.areaOfExpertise", "participantAreaOfExpertise")
+            .leftJoinAndSelect("activity.speaker", "speaker")
+            .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise")
+            .getMany();
     }
 
-    async create(activityData: CreateActivityDTO): Promise<ActivityDTO> {
-        try {
-            if (!activityData.title || !activityData.date || !activityData.time || !activityData.location || !activityData.speakerId || !activityData.idArea) {
-                throw new ValidationError("Dados obrigatórios faltando: título, data, hora, localização, palestrantes ou áreas de expertise.");
-            }
+    async findById(id: number): Promise<Activity | null> {
+        return await AppDataSource.getRepository(Activity)
+            .createQueryBuilder("activity")
+            .leftJoinAndSelect("activity.checkins", "checkin")
+            .leftJoinAndSelect("checkin.participant", "participant")
+            .leftJoinAndSelect("participant.areaOfExpertise", "participantAreaOfExpertise")
+            .leftJoinAndSelect("activity.speaker", "speaker")
+            .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise")
+            .where("activity.idActivity = :id", { id })
+            .getOne();
+    }
 
-            if (isNaN(new Date(activityData.date).getTime())) {
-                throw new ValidationError("O campo 'data' deve ser uma data válida.");
-            }
-
-            if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(activityData.time)) {
-                throw new ValidationError("O campo 'hora' deve ser um horário válido no formato HH:mm.");
-            }
-
-            const activity = this.activityRepository.create({
-                ...activityData,
-                time: activityData.time,
-            });
-
-            if (activityData.speakerId) {
-                const speakers = await this.speakerRepository.findByIds(activityData.speakerId);
-                activity.speaker = speakers;
-            }
-
-            if (activityData.idArea) {
-                const areasOfExpertise = await AppDataSource.getRepository(AreaOfExpertise).findByIds(activityData.idArea);
-                activity.areaOfExpertise = areasOfExpertise;
-            }
-
-            const savedActivity = await this.activityRepository.save(activity);
-
-            return {
-                idActivity: savedActivity.idActivity,
-                title: savedActivity.title,
-                description: savedActivity.description,
-                time: savedActivity.time,
-                date: savedActivity.date,
-                location: savedActivity.location,
-                speaker: savedActivity.speaker?.map(speaker => ({
-                    idSpeaker: speaker.idSpeaker,
-                    name: speaker.name,
-                    description: speaker.description || "Sem descrição",
-                    role: speaker.role || "Sem função",
-                    company: speaker.company || "Sem empresa",
-                })) ?? [],
-                areaOfExpertise: savedActivity.areaOfExpertise?.map(area => ({
-                    idArea: area.idArea,
-                    name: area.name,
-                })) ?? [],
-                checkins: [],
-            };
-        } catch (error: any) {
-            if (error instanceof ValidationError) {
-                throw error;
-            } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao criar a Atividade no banco de dados!");
-            } else {
-                throw new TypeError("Falha inesperada ao criar a atividade!");
-            }
-        }
+    async save(activity: Activity): Promise<Activity> {
+        return await AppDataSource.getRepository(Activity).save(activity);
     }
 
     async delete(id: number): Promise<void> {
-        try {
-            const result = await this.activityRepository.delete(id);
-            if (result.affected === 0) {
-                throw new NotFoundError("Atividade não encontrada ou já excluída.");
-            }
-        } catch (error: any) {
-            if (error instanceof NotFoundError) {
-                throw error;
-            } else if (error.name === "QueryFailedError") {
-                throw new DatabaseError("Falha ao deletar a Atividade no banco de dados!");
-            } else {
-                throw new TypeError("Falha inesperada ao deletar a atividade!");
-            }
+        const result = await AppDataSource.getRepository(Activity).delete(id);
+        if (result.affected === 0) {
+            throw new Error("Atividade não encontrada ou já excluída.");
         }
     }
-    async findById(id: number): Promise<ActivityDTO> {
-        try {
-            const activity = await this.activityRepository
-                .createQueryBuilder("activity")
-                .leftJoinAndSelect("activity.checkins", "checkin")
-                .leftJoinAndSelect("checkin.participant", "participant")
-                .leftJoinAndSelect("participant.areaOfExpertise", "participantAreaOfExpertise")
-                .leftJoinAndSelect("activity.speaker", "speaker")
-                .leftJoinAndSelect("activity.areaOfExpertise", "activityAreaOfExpertise")
-                .where("activity.idActivity = :id", { id })
-                .getOne();
-    
-            if (!activity) {
-                throw new NotFoundError("Atividade não encontrada.");
-            }
-    
-            return {
-                idActivity: activity.idActivity,
-                title: activity.title ?? "Sem título",
-                description: activity.description ?? "Sem descrição",
-                time: activity.time ?? "00:00",
-                date: activity.date ?? new Date("2000-01-01"),
-                location: activity.location ?? "Sem local",
-                checkins: activity.checkins.map(checkin => ({
-                    idCheckin: checkin.idCheckin,
-                    participant: checkin.participant
-                        ? {
-                            idParticipant: checkin.participant.idParticipant,
-                            name: checkin.participant.name ?? "Sem nome",
-                            email: checkin.participant.email ?? "Sem e-mail",
-                            companyName: checkin.participant.companyName ?? "Sem empresa",
-                            position: checkin.participant.position ?? "Sem cargo",
-                            contact: checkin.participant.contact ?? "Sem contato",
-                            postPermission: checkin.participant.postPermission ?? 0,
-                            AreaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
-                                idArea: area.idArea,
-                                name: area.name,
-                            })) ?? [],
-                        }
-                        : null,
-                    idActivity: checkin.activity?.idActivity ?? 0,
-                    checkinDateTime: checkin.checkinDateTime,
-                })),
-                speaker: activity.speaker?.map(speaker => ({
-                    idSpeaker: speaker.idSpeaker,
-                    name: speaker.name ?? "Sem nome",
-                    description: speaker.description || "Sem descrição",
-                    role: speaker.role || "Sem função",
-                    company: speaker.company || "Sem empresa",
-                })) ?? [],
-                areaOfExpertise: activity.areaOfExpertise?.map(area => ({
-                    idArea: area.idArea,
-                    name: area.name,
-                })) ?? [],
-            };
-        } catch (error: any) {
-            if (error instanceof NotFoundError) {
-                throw error;
-            } else {
-                console.error("Erro desconhecido ao buscar atividade:", error);
-                throw new Error("Erro desconhecido ao buscar atividade.");
-            }
-        }
+
+    async findSpeakersByIds(ids: number[]): Promise<Speaker[]> {
+        return await AppDataSource.getRepository(Speaker).findByIds(ids);
+    }
+
+    async findAreasByIds(ids: number[]): Promise<AreaOfExpertise[]> {
+        return await AppDataSource.getRepository(AreaOfExpertise).findByIds(ids);
+    }
+
+    create(data: Partial<Activity>): Activity {
+        return AppDataSource.getRepository(Activity).create(data);
     }
 }
 

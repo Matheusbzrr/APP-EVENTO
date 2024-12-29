@@ -1,30 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
-import { Activity } from './activity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from "typeorm";
+import { Activity } from "./activity";
 
-@Entity({ name: 'Speaker' })
+@Entity({ name: "Speaker" })
 export class Speaker {
-    @PrimaryGeneratedColumn({ type: 'int' })
+    @PrimaryGeneratedColumn({ type: "int" })
     idSpeaker!: number;
 
     @Column({ length: 200 })
     name!: string;
 
-    @Column({ type: 'text', nullable: true }) 
+    @Column({ type: "text", nullable: true })
     description?: string;
 
-    @Column({ length: 100, nullable: true }) 
+    @Column({ length: 100, nullable: true })
     role?: string;
 
-    @Column({ length: 200, nullable: true }) 
+    @Column({ length: 200, nullable: true })
     company?: string;
 
-    @ManyToMany(() => Activity, activity => activity.speaker, { onUpdate: 'CASCADE' })
+    @ManyToMany(() => Activity, activity => activity.speaker, { onUpdate: "CASCADE" })
     activity?: Activity[];
-
-    constructor(name: string, description?: string, role?: string, company?: string) {
-        this.name = name;
-        this.description = description;
-        this.role = role;
-        this.company = company;
-    }
 }
