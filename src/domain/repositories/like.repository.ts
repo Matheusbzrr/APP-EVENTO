@@ -1,12 +1,6 @@
 import { AppDataSource } from "../../infrastructure/db/data-source";
 import { Like } from "../models/like";
-import { Participant } from "../models/participant";
-import { Post } from "../models/post";
 import { DatabaseError } from "../exceptions/data-base-error";
-import { NotFoundError } from "../exceptions/not-found-error";
-import { RecordNotFoundError } from "../exceptions/record-not-found";
-import { CreateLikeDTO } from "../dtos/like/createLike.dto";
-import { LikeDTO } from "../dtos/like/like.dto";
 import { CountLikeDTO } from "../dtos/like/countLike.dto";
 
 class LikeRepository {
