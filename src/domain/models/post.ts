@@ -14,17 +14,10 @@ export class Post {
     description?: string;
 
     @OneToMany(() => Like, like => like.post)
-        likes!: Like[];
+    likes!: Like[];
 
     @ManyToOne(() => Participant, participant => participant.posts, {
         onDelete: 'CASCADE',
     })
     participant!: Participant;
-
-    
-    constructor(participant: Participant, imageUrl?: string, description?: string) {
-        this.participant = participant;
-        this.imageUrl = imageUrl;
-        this.description = description;
-    }
 }

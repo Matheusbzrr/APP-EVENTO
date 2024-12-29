@@ -1,22 +1,99 @@
 import { CreatePostDTO } from "../dtos/post/createPost.dto";
 import { PostDTO } from "../dtos/post/post.dto";
 import postRepository from "../repositories/post.repository";
+import { Participant } from "../models/participant";
+import { Post } from "../models/post";
+import { AppDataSource } from "../../infrastructure/db/data-source";
+import { NotFoundError } from "../exceptions/not-found-error";
+import { DatabaseError } from "../exceptions/data-base-error";
 
 class PostService {
     async getAllPosts(): Promise<PostDTO[]> {
-        return await postRepository.findAll();
+        const posts = await postRepository.findAll();
+
+        if (!posts.length) {
+            throw new NotFoundError("Nenhum post encontrado.");
+        }
+
+        return posts.map(this.mapPostToDTO);
     }
 
     async getPostsByParticipantEmail(email: string): Promise<PostDTO[]> {
-        return await postRepository.findByParticipantEmail(email);
+        const posts = await postRepository.findByParticipantEmail(email);
+
+        if (!posts.length) {
+            throw new NotFoundError(`Nenhum post encontrado para o e-mail ${email}.`);
+        }
+
+        return posts.map(this.mapPostToDTO);
     }
 
     async createPost(postData: CreatePostDTO): Promise<PostDTO> {
-        return await postRepository.create(postData);
+        const participant = await AppDataSource.getRepository(Participant).findOne({
+            where: { idParticipant: postData.idParticipant },
+            relations: ["areaOfExpertise"],
+        });
+
+        if (!participant) {
+            throw new NotFoundError(`Participante com ID ${postData.idParticipant} não encontrado.`);
+        }
+
+        const post = new Post();
+        post.participant = participant;
+        post.imageUrl = postData.imageUrl || "";
+        post.description = postData.description || "";
+
+        const savedPost = await postRepository.save(post);
+
+        return this.mapPostToDTO(savedPost);
     }
 
     async deletePost(id: number): Promise<void> {
-        await postRepository.delete(id);
+        const rowsAffected = await postRepository.delete(id);
+
+        if (rowsAffected === 0) {
+            throw new NotFoundError(`Post com ID ${id} não encontrado para exclusão.`);
+        }
+    }
+
+    private mapPostToDTO(post: Post): PostDTO {
+        return {
+            idPost: post.idPost,
+            imageUrl: post.imageUrl || "",
+            description: post.description || "",
+            participant: {
+                idParticipant: post.participant.idParticipant,
+                name: post.participant.name || "Sem nome",
+                email: post.participant.email || "Sem e-mail",
+                companyName: post.participant.companyName || "Sem empresa",
+                position: post.participant.position || "Sem cargo",
+                contact: post.participant.contact || "Sem contato",
+                postPermission: post.participant.postPermission || 0,
+                AreaOfExpertise: post.participant.areaOfExpertise?.map(area => ({
+                    idArea: area.idArea,
+                    name: area.name,
+                })) || [],
+            },
+            likes: post.likes?.map(like => ({
+                idLike: like.idLike,
+                idPost: like.post?.idPost || 0,
+                participant: like.participant
+                    ? {
+                          idParticipant: like.participant.idParticipant,
+                          name: like.participant.name || "Sem nome",
+                          email: like.participant.email || "Sem e-mail",
+                          companyName: like.participant.companyName || "Sem empresa",
+                          position: like.participant.position || "Sem cargo",
+                          contact: like.participant.contact || "Sem contato",
+                          postPermission: like.participant.postPermission || 0,
+                          AreaOfExpertise: like.participant.areaOfExpertise?.map(area => ({
+                              idArea: area.idArea,
+                              name: area.name,
+                          })) || [],
+                      }
+                    : null,
+            })) || [],
+        };
     }
 }
 
