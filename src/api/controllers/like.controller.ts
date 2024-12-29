@@ -45,28 +45,54 @@ class LikeController {
             }
         }
     
+    }async delete(req: Request, res: Response): Promise<void> {
+        try {
+            const idLike = Number(req.params.idLike);
+            if (isNaN(idLike)) {
+                res.status(400).send({ message: "O ID do like deve ser um número válido." });
+                return;
+            }
+    
+            await likeService.deleteLike(idLike);
+            res.status(204).send(); // No Content
+        } catch (err: any) {
+            console.error("Erro ao deletar like:", err.message || err);
+    
+            if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message: err.message });
+            } else {
+                res.status(500).send({ message: "Erro inesperado ao tentar deletar o like." });
+            }
+        }
     }
 
     async countLikesPerPost(req: Request, res: Response): Promise<void> {
-        try {const idPost = Number(req.params.idPost);
-        if (isNaN(idPost)) {
-            res.status(400).send({ message: "O ID da postagem deve ser um número válido." });
-            return;
+        try {
+            const idPost = Number(req.params.idPost);
+            if (isNaN(idPost)) {
+                res.status(400).send({ message: "O ID da postagem deve ser um número válido." });
+                return;
+            }
+    
+            const result = await likeService.countLikesPerPost(idPost);
+            res.status(200).json(result);
+        } catch (err: any) {
+            console.error("Erro ao contar likes por postagem:", err.message || err);
+    
+            if (err instanceof NotFoundError) {
+                res.status(404).send({ message: err.message });
+            } else if (err instanceof DatabaseError) {
+                res.status(503).send({ message: err.message });
+            } else if (err instanceof TypeError) {
+                res.status(500).send({ message: err.message });
+            } else {
+                res.status(500).send({ message: "Erro desconhecido." });
+            }
         }
-        const result = await likeService.findPostWithLikes(idPost);
-        res.status(200).json(result);
-    } catch (err){
-        console.error("Erro ao contar likes por postagem:");
-        if (err instanceof NotFoundError) {
-            res.status(404).send({ message: err.message });
-        } else if (err instanceof DatabaseError) {
-            res.status(503).send({ message: err.message });
-        } else if (err instanceof TypeError) {
-            res.status(500).send({ message: err.message });
-        } else {
-            res.status(500).send({ message: "Erro desconhecido." });
-        }
-    }
     }
     
 }
