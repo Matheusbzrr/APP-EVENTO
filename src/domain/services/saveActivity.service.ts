@@ -25,9 +25,6 @@ class SaveActivityService {
 
     async getSaveActivitiesByParticipantId(idParticipant: number): Promise<SaveActivityDTO[]> {
         const saveActivities = await saveActivityRepository.findByParticipantId(idParticipant);
-        if (!saveActivities.length) {
-            throw new NotFoundError(`Nenhuma atividade salva encontrada para o participante com ID ${idParticipant}.`);
-        }
 
         return saveActivities.map(this.mapToDTO);
     }
@@ -43,13 +40,41 @@ class SaveActivityService {
             activity: {
                 idActivity: saveActivity.activity.idActivity,
                 title: saveActivity.activity.title,
-                description: saveActivity.activity.description,
+                description: saveActivity.activity.description || "Sem descrição",
                 time: saveActivity.activity.time,
                 date: saveActivity.activity.date,
-                location: saveActivity.activity.location,
-                checkins: [],
-                speaker: [],
-                areaOfExpertise: [],
+                location: saveActivity.activity.location || "Localização não informada",
+                checkins: saveActivity.activity.checkins?.map((checkin) => ({
+                    idCheckin: checkin.idCheckin,
+                    participant: checkin.participant
+                        ? {
+                              idParticipant: checkin.participant.idParticipant,
+                              name: checkin.participant.name || "Sem nome",
+                              email: checkin.participant.email || "Sem e-mail",
+                              companyName: checkin.participant.companyName || "Sem empresa",
+                              position: checkin.participant.position || "Sem cargo",
+                              contact: checkin.participant.contact || "Sem contato",
+                              postPermission: checkin.participant.postPermission || 0,
+                              AreaOfExpertise: checkin.participant.areaOfExpertise?.map(area => ({
+                                  idArea: area.idArea,
+                                  name: area.name,
+                              })) ?? [],
+                          }
+                        : null,
+                    idActivity: checkin.activity?.idActivity || 0,
+                    checkinDateTime: checkin.checkinDateTime,
+                })) || [],
+                speaker: saveActivity.activity.speaker?.map((speaker) => ({
+                    idSpeaker: speaker.idSpeaker,
+                    name: speaker.name || "Sem nome",
+                    description: speaker.description || "Sem descrição",
+                    role: speaker.role || "Sem função",
+                    company: speaker.company || "Sem empresa",
+                })) || [],
+                areaOfExpertise: saveActivity.activity.areaOfExpertise?.map((area) => ({
+                    idArea: area.idArea,
+                    name: area.name,
+                })) || [],
             },
         };
     }

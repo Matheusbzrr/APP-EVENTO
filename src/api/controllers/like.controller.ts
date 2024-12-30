@@ -45,7 +45,8 @@ class LikeController {
             }
         }
     
-    }async delete(req: Request, res: Response): Promise<void> {
+    }
+    async delete(req: Request, res: Response): Promise<void> {
         try {
             const idLike = Number(req.params.idLike);
             if (isNaN(idLike)) {
