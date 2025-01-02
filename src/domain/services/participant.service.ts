@@ -64,20 +64,25 @@ class ParticipantService {
         return this.mapToParticipantDTO(savedParticipant);
     }
 
-    async updateParticipant(id: number, updateData: Partial<CreateParticipantDTO>): Promise<ParticipantDTO> {
+    async updateParticipant(
+        id: number,
+        updateData: Partial<CreateParticipantDTO>
+    ): Promise<Partial<ParticipantDTO>> {
+        // Verifica se o participante existe
         const participant = await participantRepository.findById(id);
-
         if (!participant) {
             throw new NotFoundError(`Participante com ID ${id} não encontrado.`);
         }
 
+        // Validação de e-mail
         if (updateData.email) {
-            const emailExists = await participantRepository.findByEmail(updateData.email);
-            if (emailExists && emailExists.idParticipant !== id) {
+            const existingParticipant = await participantRepository.findByEmail(updateData.email);
+            if (existingParticipant && existingParticipant.idParticipant !== id) {
                 throw new ConflictError("Já existe um participante com esse e-mail.");
             }
         }
 
+        // Validação das áreas de expertise
         if (updateData.idArea) {
             const areasOfExpertise = await participantRepository.findAreasByIds(updateData.idArea);
             if (areasOfExpertise.length !== updateData.idArea.length) {
@@ -86,12 +91,24 @@ class ParticipantService {
             participant.areaOfExpertise = areasOfExpertise;
         }
 
+        // Atualiza os dados do participante
         Object.assign(participant, updateData);
 
+        // Salva as alterações
         const updatedParticipant = await participantRepository.save(participant);
 
-        return this.mapToParticipantDTO(updatedParticipant);
+        // Retorna apenas os dados atualizados
+        return {
+            idParticipant: updatedParticipant.idParticipant,
+            name: updatedParticipant.name,
+            email: updatedParticipant.email,
+            position: updatedParticipant.position,
+            contact: updatedParticipant.contact,
+            companyName: updatedParticipant.companyName,
+            postPermission: updatedParticipant.postPermission,
+        };
     }
+
 
     private mapToParticipantDTO(participant: Participant): ParticipantDTO {
         return {
