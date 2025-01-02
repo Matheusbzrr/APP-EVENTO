@@ -11,7 +11,7 @@ class PostController {
     
             const adjustedPosts = posts.map((post) => ({
                 ...post,
-                imageUrl: `${req.protocol}://${req.get("host")}${post.imageUrl}`, // Adiciona o host ao caminho da imagem
+                imageUrl: `${req.protocol}://${req.get("host")}${post.imageUrl}`, 
             }));
     
             res.status(200).json(adjustedPosts);
