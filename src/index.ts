@@ -16,9 +16,7 @@ export default class Server {
     app.use(cors(corsOptions));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-
-    app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-
+    app.use("/uploads", express.static(path.join(__dirname, "../uploads")));  
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   }
 }
