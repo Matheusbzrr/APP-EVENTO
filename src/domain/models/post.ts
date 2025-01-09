@@ -10,7 +10,7 @@ export class Post {
     @Column({ length: 300, nullable: true })
     imageUrl?: string;
 
-    @Column({ length: 1000, nullable: true })
+    @Column({ length: 2000, nullable: true })
     description?: string;
 
     @OneToMany(() => Like, like => like.post)
