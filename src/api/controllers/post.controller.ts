@@ -99,8 +99,7 @@ class PostController {
 
     async updatePost(req: Request, res: Response): Promise<void> {
         try {
-            const { idPost } = req.params;
-            const idParticipant = req.body.idParticipant || req.body.idParticipant;
+            const { id: idPost, idParticipant } = req.params; 
             const description = req.body.description;
             const image = req.file?.filename;
     
