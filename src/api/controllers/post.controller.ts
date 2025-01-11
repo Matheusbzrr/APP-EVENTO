@@ -3,6 +3,7 @@ import postService from "../../domain/services/post.service";
 import { NotFoundError } from "../../domain/exceptions/not-found-error";
 import { DatabaseError } from "../../domain/exceptions/data-base-error";
 import { ValidationError } from "../../domain/exceptions/validation-error";
+import { Post } from "../../domain/models/post";
 
 class PostController {
     async getAllPosts(req: Request, res: Response): Promise<void> {
@@ -99,14 +100,17 @@ class PostController {
     async updatePost(req: Request, res: Response): Promise<void> {
         try {
             const { idPost } = req.params;
-            const { idParticipant, ...updates } = req.body;
-            const file = req.file;
+            const idParticipant = req.body.idParticipant || req.body.idParticipant;
+            const description = req.body.description;
+            const image = req.file?.filename;
     
             if (!idPost || !idParticipant) {
                 throw new ValidationError("ID do post e ID do participante são obrigatórios.");
             }
-                if (file) {
-                updates.imageUrl = `/uploads/${file.filename}`;
+    
+            const updates: Partial<Post> = { description };
+            if (image) {
+                updates.imageUrl = `/uploads/${image}`;
             }
     
             const updatedPost = await postService.updatePost(Number(idPost), Number(idParticipant), updates);
