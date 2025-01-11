@@ -29,6 +29,18 @@ class PostRepository {
         const result = await AppDataSource.getRepository(Post).delete(id);
         return result.affected || 0;
     }
+
+    async findByIdAndParticipant(idPost: number, idParticipant: number): Promise<Post | null> {
+        return await AppDataSource.getRepository(Post).findOne({
+            where: { idPost, participant: { idParticipant } },
+            relations: ["participant"],
+        });
+    }
+
+    async update(post: Post, updates: Partial<Post>): Promise<Post> {
+        Object.assign(post, updates);
+        return await AppDataSource.getRepository(Post).save(post);
+    }
 }
 
 export default new PostRepository();

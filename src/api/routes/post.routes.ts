@@ -258,6 +258,52 @@ class PostRoutes {
          *         description: Erro ao excluir o post.
          */
         this.router.delete("/posts/:id", this.controller.deletePost);
+        /**
+         * @openapi
+         * /posts/{id}:
+         *   patch:
+         *     tags:
+         *       - Posts
+         *     summary: Atualizar um post
+         *     description: Atualiza um post existente com base no ID do post e no ID do participante.
+         *     parameters:
+         *       - name: id
+         *         in: path
+         *         required: true
+         *         description: ID do post a ser atualizado.
+         *         schema:
+         *           type: integer
+         *           example: 5
+         *     requestBody:
+         *       required: true
+         *       content:
+         *         application/json:
+         *           schema:
+         *             type: object
+         *             properties:
+         *               idParticipant:
+         *                 type: number
+         *                 description: ID do participante associado ao post.
+         *                 example: 1
+         *               description:
+         *                 type: string
+         *                 description: Nova descrição do post.
+         *                 example: "Nova descrição do post."
+         *               imageUrl:
+         *                 type: string
+         *                 description: Nova URL da imagem do post.
+         *                 example: "https://example.com/new-image.jpg"
+         *     responses:
+         *       200:
+         *         description: Post atualizado com sucesso.
+         *       400:
+         *         description: Dados inválidos fornecidos.
+         *       404:
+         *         description: Post não encontrado ou participante não autorizado.
+         *       500:
+         *         description: Erro ao atualizar o post.
+         */
+        this.router.patch("/posts/:id", this.controller.updatePost);
     }
 }
 

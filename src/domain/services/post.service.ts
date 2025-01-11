@@ -5,7 +5,6 @@ import { Participant } from "../models/participant";
 import { Post } from "../models/post";
 import { AppDataSource } from "../../infrastructure/db/data-source";
 import { NotFoundError } from "../exceptions/not-found-error";
-import { DatabaseError } from "../exceptions/data-base-error";
 
 class PostService {
     async getAllPosts(): Promise<PostDTO[]> {
@@ -56,6 +55,20 @@ class PostService {
         }
     }
 
+    async updatePost(idPost: number, idParticipant: number, updates: Partial<Post>): Promise<PostDTO> {
+        const post = await postRepository.findByIdAndParticipant(idPost, idParticipant);
+
+        if (!post) {
+            throw new NotFoundError(
+                `Post com ID ${idPost} não encontrado ou participante não autorizado a atualizá-lo.`
+            );
+        }
+
+        const updatedPost = await postRepository.update(post, updates);
+
+        return this.mapPostToDTO(updatedPost);
+    }
+
     private mapPostToDTO(post: Post): PostDTO {
         return {
             idPost: post.idPost,
@@ -98,4 +111,3 @@ class PostService {
 }
 
 export default new PostService();
-
