@@ -309,11 +309,10 @@ class PostRoutes {
      *       500:
      *         description: Erro ao atualizar o post.
      */
-    this.router.patch(
-      "/posts/:id/:idParticipant",
-      upload.single("image"),
-      this.controller.updatePost
-    );
+    this.router.patch("/posts/:id/:idParticipant", upload.single("image"), (req, res, next) => {
+      console.log("Arquivo recebido pelo multer:", req.file);
+      next();
+    }, this.controller.updatePost);
   }
 }
 
