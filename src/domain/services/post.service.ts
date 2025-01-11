@@ -5,6 +5,7 @@ import { Participant } from "../models/participant";
 import { Post } from "../models/post";
 import { AppDataSource } from "../../infrastructure/db/data-source";
 import { NotFoundError } from "../exceptions/not-found-error";
+import { DatabaseError } from "../exceptions/data-base-error";
 
 class PostService {
     async getAllPosts(): Promise<PostDTO[]> {
@@ -97,3 +98,4 @@ class PostService {
 }
 
 export default new PostService();
+

@@ -34,21 +34,21 @@ class ParticipantService {
 
     async createParticipant(participantData: CreateParticipantDTO): Promise<ParticipantDTO> {
         const { email, name, idArea } = participantData;
-    
+
         if (!email || !name) {
             throw new ValidationError("Nome e e-mail são obrigatórios.");
         }
-    
+
         const existingParticipant = await participantRepository.findByEmail(email);
         if (existingParticipant) {
             throw new ConflictError("Já existe um participante com esse e-mail.");
         }
-    
+
         const areasOfExpertise = await participantRepository.findAreasByIds(idArea);
         if (areasOfExpertise.length !== idArea.length) {
             throw new ValidationError("Uma ou mais áreas de expertise fornecidas são inválidas.");
         }
-    
+
         const participant = AppDataSource.getRepository(Participant).create({
             name: participantData.name,
             email: participantData.email,
@@ -58,31 +58,25 @@ class ParticipantService {
             contact: participantData.contact,
             areaOfExpertise: areasOfExpertise,
         });
-    
+
         const savedParticipant = await participantRepository.save(participant);
-    
+
         return this.mapToParticipantDTO(savedParticipant);
     }
-
-    async updateParticipant(
-        id: number,
-        updateData: Partial<CreateParticipantDTO>
-    ): Promise<Partial<ParticipantDTO>> {
-        // Verifica se o participante existe
+    async updateParticipant(id: number, updateData: Partial<CreateParticipantDTO>): Promise<ParticipantDTO> {
         const participant = await participantRepository.findById(id);
+
         if (!participant) {
             throw new NotFoundError(`Participante com ID ${id} não encontrado.`);
         }
 
-        // Validação de e-mail
         if (updateData.email) {
-            const existingParticipant = await participantRepository.findByEmail(updateData.email);
-            if (existingParticipant && existingParticipant.idParticipant !== id) {
+            const emailExists = await participantRepository.findByEmail(updateData.email);
+            if (emailExists && emailExists.idParticipant !== id) {
                 throw new ConflictError("Já existe um participante com esse e-mail.");
             }
         }
 
-        // Validação das áreas de expertise
         if (updateData.idArea) {
             const areasOfExpertise = await participantRepository.findAreasByIds(updateData.idArea);
             if (areasOfExpertise.length !== updateData.idArea.length) {
@@ -91,24 +85,12 @@ class ParticipantService {
             participant.areaOfExpertise = areasOfExpertise;
         }
 
-        // Atualiza os dados do participante
         Object.assign(participant, updateData);
 
-        // Salva as alterações
         const updatedParticipant = await participantRepository.save(participant);
 
-        // Retorna apenas os dados atualizados
-        return {
-            idParticipant: updatedParticipant.idParticipant,
-            name: updatedParticipant.name,
-            email: updatedParticipant.email,
-            position: updatedParticipant.position,
-            contact: updatedParticipant.contact,
-            companyName: updatedParticipant.companyName,
-            postPermission: updatedParticipant.postPermission,
-        };
+        return this.mapToParticipantDTO(updatedParticipant);
     }
-
 
     private mapToParticipantDTO(participant: Participant): ParticipantDTO {
         return {

@@ -5,26 +5,41 @@ import { DatabaseError } from "../../domain/exceptions/data-base-error";
 import { ValidationError } from "../../domain/exceptions/validation-error";
 
 class PostController {
-    async getAllPosts(req: Request, res: Response): Promise<void> {
-        try {
-            const posts = await postService.getAllPosts();
-    
-            const adjustedPosts = posts.map((post) => ({
-                ...post,
-                imageUrl: `${req.protocol}://${req.get("host")}${post.imageUrl}`, 
-            }));
-    
-            res.status(200).json(adjustedPosts);
-        } catch (err: any) {
-            console.error("Erro ao buscar posts:", err);
-            if (err instanceof DatabaseError) {
-                res.status(503).send({ message: err.message });
-            } else {
-                res.status(500).send({ message: "Erro inesperado ao buscar posts." });
-            }
+
+
+async getAllPosts(req: Request, res: Response): Promise<void> {
+    try {
+        console.log("Recebendo requisição para buscar todos os posts...");
+
+        const posts = await postService.getAllPosts();
+        console.log("Posts recebidos do serviço:", posts);
+
+        const adjustedPosts = posts.map((post) => {
+            // Construção da URL
+            const imageUrl = `https://${req.get("host")}/appevento/uploads/${post.imageUrl.split('/').pop()}`;
+            console.log("URL ajustada para o post:", {
+                originalImageUrl: post.imageUrl,
+                adjustedImageUrl: imageUrl,
+            });
+
+            return { ...post, imageUrl };
+        });
+
+        console.log("Posts ajustados enviados para o cliente:", adjustedPosts);
+
+        res.status(200).json(adjustedPosts);
+    } catch (err: any) {
+        console.error("Erro ao buscar posts:", err);
+
+        if (err instanceof DatabaseError) {
+            console.error("Erro de banco de dados:", err.message);
+            res.status(503).send({ message: err.message });
+        } else {
+            console.error("Erro inesperado:", err.message);
+            res.status(500).send({ message: "Erro inesperado ao buscar posts." });
         }
     }
-    
+}
     async getPostsByParticipantEmail(req: Request, res: Response): Promise<void> {
         try {
             const { email } = req.query;
@@ -32,14 +47,14 @@ class PostController {
                 res.status(400).send({ message: "E-mail inválido ou não fornecido." });
                 return;
             }
-    
+
             const posts = await postService.getPostsByParticipantEmail(email);
-    
+
             const adjustedPosts = posts.map((post) => ({
                 ...post,
                 imageUrl: `${req.protocol}://${req.get("host")}${post.imageUrl}`, // Adiciona o host ao caminho da imagem
             }));
-    
+
             res.status(200).json(adjustedPosts);
         } catch (err: any) {
             console.error("Erro ao buscar posts por e-mail:", err);
@@ -63,7 +78,7 @@ class PostController {
 
             // Obtenha o caminho da imagem
             const imageUrl = `/uploads/${req.file.filename}`;
-
+            console.log("Imagem salva em:", imageUrl);
             const postData = {
                 idParticipant,
                 description,
