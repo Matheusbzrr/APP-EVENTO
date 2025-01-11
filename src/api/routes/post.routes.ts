@@ -277,7 +277,7 @@ class PostRoutes {
          *     requestBody:
          *       required: true
          *       content:
-         *         application/json:
+         *         multipart/form-data:
          *           schema:
          *             type: object
          *             properties:
@@ -289,10 +289,10 @@ class PostRoutes {
          *                 type: string
          *                 description: Nova descrição do post.
          *                 example: "Nova descrição do post."
-         *               imageUrl:
+         *               image:
          *                 type: string
-         *                 description: Nova URL da imagem do post.
-         *                 example: "https://example.com/new-image.jpg"
+         *                 format: binary
+         *                 description: Nova imagem do post.
          *     responses:
          *       200:
          *         description: Post atualizado com sucesso.
@@ -303,7 +303,7 @@ class PostRoutes {
          *       500:
          *         description: Erro ao atualizar o post.
          */
-        this.router.patch("/posts/:id", this.controller.updatePost);
+        this.router.patch("/posts/:id", upload.single("image"), this.controller.updatePost);
     }
 }
 

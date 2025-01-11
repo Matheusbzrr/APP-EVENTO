@@ -100,11 +100,15 @@ class PostController {
         try {
             const { idPost } = req.params;
             const { idParticipant, ...updates } = req.body;
-
+            const file = req.file;
+    
             if (!idPost || !idParticipant) {
                 throw new ValidationError("ID do post e ID do participante são obrigatórios.");
             }
-
+                if (file) {
+                updates.imageUrl = `/uploads/${file.filename}`;
+            }
+    
             const updatedPost = await postService.updatePost(Number(idPost), Number(idParticipant), updates);
             res.status(200).json(updatedPost);
         } catch (err: any) {

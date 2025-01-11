@@ -55,17 +55,30 @@ class PostService {
         }
     }
 
-    async updatePost(idPost: number, idParticipant: number, updates: Partial<Post>): Promise<PostDTO> {
+    async updatePost(
+        idPost: number,
+        idParticipant: number,
+        updates: Partial<Post & { imageUrl?: string }>
+    ): Promise<PostDTO> {
         const post = await postRepository.findByIdAndParticipant(idPost, idParticipant);
-
+    
         if (!post) {
             throw new NotFoundError(
                 `Post com ID ${idPost} não encontrado ou participante não autorizado a atualizá-lo.`
             );
         }
-
-        const updatedPost = await postRepository.update(post, updates);
-
+    
+        // Atualiza os dados do post somente se foram fornecidos
+        if (updates.description) {
+            post.description = updates.description;
+        }
+    
+        if (updates.imageUrl) {
+            post.imageUrl = updates.imageUrl; 
+        }
+    
+        const updatedPost = await postRepository.save(post);
+    
         return this.mapPostToDTO(updatedPost);
     }
 
