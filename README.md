@@ -71,6 +71,48 @@ Certifique-se de ter instalado:
 
 ## 🚀 Endpoints
 
+Abaixo estão as rotas disponíveis na aplicação e suas funcionalidades principais:
+
+### Base URL
+
+Todas as rotas têm como base:  
+`http://localhost:8080/appevento`
+
+### Rotas
+
+- **/participant**  
+  Gerenciamento de participantes da missão.
+
+- **/areaOfExpertise**  
+  Gerenciamento das áreas de especialização.
+
+- **/checkin**  
+  Registro de check-ins dos participantes no evento.
+
+- **/activity**  
+  Gerenciamento das atividades realizadas durante o evento.
+
+- **/speaker**  
+  Gerenciamento de informações sobre os palestrantes.
+
+- **/auth**  
+  Autenticação e gerenciamento de usuários (login e JWT).
+
+- **/like**  
+  Gerenciamento de curtidas em posts ou atividades.
+
+- **/post**  
+  Gerenciamento de posts relacionados ao evento.
+
+- **/saveActivity**  
+  Salvamento de atividades favoritas ou marcadas pelos participantes.
+
+---
+
+Para mais informações sobre cada rota e seus parâmetros, consulte a documentação Swagger disponível em:  
+`http://localhost:8080/api-docs`.
+
+
 A **API Missão NRF 2025** fornece endpoints para gerenciar participantes, eventos, cronogramas e outros aspectos relevantes da missão. Consulte a documentação Swagger para mais detalhes.
 
 ## ✒️ Autores
